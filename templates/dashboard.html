@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - EduRec{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-user-circle"></i> Profile Status
+                </h5>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">School</h6>
+                            <small>{{ current_user.school or 'Not set' }}</small>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Current Grade</h6>
+                            <small>{{ current_user.current_grade or 'Not set' }}</small>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Favorite Subjects</h6>
+                            <small>{{ current_user.favorite_subjects or 'Not set' }}</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('profile') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit"></i> Update Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-lightbulb"></i> Recommendations
+                </h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card recommendation-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chalkboard-teacher fa-2x mb-3 text-primary"></i>
+                                <h6>Courses</h6>
+                                <a href="{{ url_for('recommendations') }}#courses" class="btn btn-sm btn-outline-primary">
+                                    View Recommendations
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card recommendation-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-tie fa-2x mb-3 text-primary"></i>
+                                <h6>Tutors</h6>
+                                <a href="{{ url_for('recommendations') }}#tutors" class="btn btn-sm btn-outline-primary">
+                                    View Recommendations
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card recommendation-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-book fa-2x mb-3 text-primary"></i>
+                                <h6>Materials</h6>
+                                <a href="{{ url_for('recommendations') }}#materials" class="btn btn-sm btn-outline-primary">
+                                    View Recommendations
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-book"></i> Study Plans
+                </h5>
+                {% if current_user.study_plans %}
+                    <div class="list-group">
+                        {% for plan in current_user.study_plans %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">Study Plan #{{ plan.id }}</h6>
+                                    <small>{{ plan.created_at.strftime('%Y-%m-%d') }}</small>
+                                </div>
+                                <p class="mb-1">{{ plan.description }}</p>
+                                <small>
+                                    {{ plan.courses|length }} courses,
+                                    {{ plan.tutors|length }} tutors,
+                                    {{ plan.materials|length }} materials
+                                </small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No study plans created yet.</p>
+                {% endif %}
+                <div class="mt-3">
+                    <a href="{{ url_for('study_plan') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create New Study Plan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

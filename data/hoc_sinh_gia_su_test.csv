@@ -1,0 +1,16 @@
+ID Học Sinh,Tên,Trường học hiện tại,Khối Lớp hiện tại,Mục tiêu học,Môn học yêu thích,Phương pháp học yêu thích,ID Gia Sư,Tên gia sư,Môn học,Thời gian dạy học,Khối Lớp,Kinh nghiệm giảng dạy
+27,Hoàng Ngọc Gia Long,THCS Tàm Xá,Lớp 8,Mở rộng kiến thức,Văn học,Trực tiếp,2,Chu Quốc Hùng,Văn học,"17h thứ hai;16h thứ tư;9h thứ bảy","6,7,8,9",12 năm
+28,Phạm Thu Hà,Thpt Nguyên Gia Thiều,Lớp 10,Mở rộng kiến thức,Hoá học,Trực tiếp,14,Nguyễn Vịnh Thiên,Hoá học,"18h thứ hai;16h thứ tư;17h thứ sáu;19h thứ bảy","10,11,12",8 năm
+29,Nguyễn Ngọc Khánh,THPT Nguyễn Gia Thiều,Lớp 11,Cải thiện học lực,"Vật lý, Toán",Trực tiếp,3,Dương Đình Thắng,Toán học,"18h thứ tư;16h thứ năm;15h thứ bảy","10,11,12",10 năm
+30,Nguyễn Anh Tuấn,Thpt NGT,Lớp 12,Thi lên đại học,"Sinh học, Địa lý, Hoá học",Trực tiếp,11,Phan Tâm Mẫn,Sinh học,"17h thứ ba;18h thứ tư;17h thứ năm","8,9,10,11",20 năm
+31,Ngô Hồng Khoa,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,Lịch sử,Online,13,Vũ Văn Thịnh,Lịch sử,"15h thứ hai;17h thứ sáu;17h chủ nhật","10,11,12",18 năm
+32,Trần Bảo Thư,THPT Nguyễn Gia Thiều,Lớp 11,Mở rộng kiến thức,"Văn học, Toán, Sinh học",Online,15,Lê Khánh Tùng,Văn học,"18h thứ ba;16h thứ năm;17h thứ bảy","10,11,12",7 năm
+33,Lê Gia Đức Anh,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Hoá học, Vật lý, Địa lý",Trực tiếp,14,Nguyễn Vịnh Thiên,Hoá học,"18h thứ hai;16h thứ tư;17h thứ sáu;19h thứ bảy","10,11,12",8 năm
+34,Lê Hà Linh,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Văn học, Lịch sử, Địa lý",Trực tiếp,12,Hoàng Công Khánh,Văn học,"14h thứ bảy;14h chủ nhật","7,8,9,10,11,12",15 năm
+35,Nguyễn Thanh Hằng,THPT Nguyễn Gia Thiều,Lớp 10,Mở rộng kiến thức,"Toán, Sinh học",Trực tiếp,8,Trần Bích Phương,Toán học,"18h thứ hai;16h thứ ba;17h thứ sáu","9,10,11,12",6 năm
+36,nguyễn phương huyền,thpt nguyễn gia thiều,Lớp 12,Thi lên đại học,"Vật lý, Tiếng Anh",Trực tiếp,5,Phan Anh Tú,Vật lý,"17h thứ ba;19h thứ năm","10,11,12",3 năm
+37,Nguyễn Thu Hiền,Trường THPT Nguyễn Gia Thiều,Lớp 10,Mở rộng kiến thức,"Địa lý, Hoá học",Online,7,Nguyễn Thị Thuỷ,Địa lý,"17h thứ ba;18h thứ tư;17h thứ năm","9,12",10 năm
+38,Đào Duy Quang Minh,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Lịch sử, Văn học",Online,12,Hoàng Công Khánh,Văn học,"14h thứ bảy;14h chủ nhật","7,8,9,10,11,12",15 năm
+39,Trịnh Khánh Đan,THPT Nguyễn Gia Thiều,Lớp 11,Mở rộng kiến thức,"Văn học, Toán, Tiếng Anh",Online,6,Trần Thị Vân,Tiếng Anh,"18h thứ hai;16h thứ tư;17h thứ sáu;19h thứ bảy","6,7,8,9",25 năm
+40,Trần Minh Tân,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Sinh học, Vật lý",Online,11,Phan Tâm Mẫn,Sinh học,"17h thứ ba;18h thứ tư;17h thứ năm","8,9,10,11",20 năm
+41,Kiều Phương Nhung,THPT Nguyễn Gia Thiều,Lớp 11,Mở rộng kiến thức,"Toán, Hoá học",Trực tiếp,8,Trần Bích Phương,Toán học,"18h thứ hai;16h thứ ba;17h thứ sáu","9,10,11,12",6 năm

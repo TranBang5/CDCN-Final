@@ -1,0 +1,27 @@
+ID Học Sinh,Tên,Trường học hiện tại,Khối Lớp hiện tại,Mục tiêu học,Môn học yêu thích,Phương pháp học yêu thích,ID Gia Sư,Tên gia sư,Môn học,Thời gian dạy học,Khối Lớp,Kinh nghiệm giảng dạy,Đánh giá
+1,Trần Hoàng Việt Vũ,THPT Cổ Loa,Lớp 10,Thi lên cấp 3,"Toán, Văn, Vật lý",Trực tiếp,10,Đinh Xuân Hiệp,Toán học,"8h thứ bảy;18h thứ bảy","10,11,12",9 năm,10
+2,Lê công tuấn dũng,Trung học cơ sở tàm xá,Lớp 8,Mở rộng kiến thức,Vật lý,Trực tiếp,4,Phan Văn Dương,Vật lý,"18h thứ năm;16h thứ bảy;17h chủ nhật","8,9,10,11,12",22 năm,8
+3,Phạm Quỳnh Trang,Thpt cổ loa,Lớp 11,Mở rộng kiến thức,Hoá học,Trực tiếp,14,Nguyễn Vịnh Thiên,Hoá học,"18h thứ hai;16h thứ tư;17h thứ sáu;19h thứ bảy","10,11,12",8 năm,9
+4,Nguyễn Phương Thảo,Trường THPT Cổ Loa,Lớp 12,Thi lên đại học,"Vật lý, Tiếng Anh",Online,5,Phan Anh Tú,Vật lý,"17h thứ ba;19h thứ năm","10,11,12",3 năm,7
+5,Nguyễn Hà Linh,Thpt Cổ Loa,Lớp 11,Cải thiện học lực,"Văn, Toán, Vật lý",Trực tiếp,8,Trần Bích Phương,Toán học,"18h thứ hai;16h thứ ba;17h thứ sáu","9,10,11,12",6 năm,10
+6,Lê Khánh Ly,THPT Cổ Loa,Lớp 10,Thi lên cấp 3,"Hoá học, Vật lý",Trực tiếp,14,Nguyễn Vịnh Thiên,Hoá học,"18h thứ hai;16h thứ tư;17h thứ sáu;19h thứ bảy","10,11,12",8 năm,6
+7,Nguyễn Vân Thư,THPT Cổ Loa,Lớp 12,Thi lên đại học,Toán học,Trực tiếp,3,Dương Đình Thắng,Toán học,"18h thứ tư;16h thứ năm;15h thứ bảy","10,11,12",10 năm,7
+8,Nguyễn Phương Thảo,THPT Cổ Loa,Lớp 12,Thi lên đại học,Toán học,Trực tiếp,3,Dương Đình Thắng,Toán học,"18h thứ tư;16h thứ năm;15h thứ bảy","10,11,12",10 năm,7
+9,Nguyễn Anh Tuấn,THPT Cổ Loa,Lớp 11,Mở rộng kiến thức,"Vật lý, Hoá học",Online,5,Phan Anh Tú,Vật lý,"17h thứ ba;19h thứ năm","10,11,12",3 năm,8
+10,Ngô Thảo Nhi,THPT Cổ Loa,Lớp 10,Cải thiện học lực,"Lịch sử, Địa lý, Sinh học",Online,7,Nguyễn Thị Thuỷ,Địa lý,"17h thứ ba;18h thứ tư;17h thứ năm","9,12",10 năm,8
+11,lê thùy dương,thcs tàm xá,Lớp 8,Mở rộng kiến thức,"Văn học, Tiếng Anh",Online,6,Trần Thị Vân,Tiếng Anh,"18h thứ hai;16h thứ tư;17h thứ sáu;19h thứ bảy","6,7,8,9",25 năm,7
+12,Nguyễn Hương Giang,THPT Cổ Loa,Lớp 11,Cải thiện học lực,"Văn học, Toán, Lịch sử",Trực tiếp,15,Lê Khánh Tùng,Văn học,"18h thứ ba;16h thứ năm;17h thứ bảy","10,11,12",7 năm,9
+13,Đào Phương Linh,THPT Vân Nội,Lớp 10,Cải thiện học lực,Sinh học,Trực tiếp,11,Phan Tâm Mẫn,Sinh học,"17h thứ ba;18h thứ tư;17h thứ năm","8,9,10,11",20 năm,8
+14,Tăng Thùy Minh,THPT Nguyễn Gia Thiều,Lớp 11,Thi lên đại học,"Địa lý, Vật lý",Online,7,Nguyễn Thị Thuỷ,Địa lý,"17h thứ ba;18h thứ tư;17h thứ năm","9,12",10 năm,9
+15,Lê Bảo Ngọc,THPT CỔ LOA,Lớp 11,Mở rộng kiến thức,"Toán, Hoá học, Tiếng Anh",Trực tiếp,6,Trần Thị Vân,Tiếng Anh,"18h thứ hai;16h thứ tư;17h thứ sáu;19h thứ bảy","6,7,8,9",25 năm,7
+16,Hoàng Khánh ly,Thcs tàm xa,Lớp 8,Cải thiện học lực,"Văn học, Lịch sử",Trực tiếp,2,Chu Quốc Hùng,Văn học,"17h thứ hai;16h thứ tư;9h thứ bảy","6,7,8,9",12 năm,9
+17,Trần Ngọc Đăng,THCS Tàm Xá,Lớp 8,Mở rộng kiến thức,"Sinh học, Địa lý",Online,11,Phan Tâm Mẫn,Sinh học,"17h thứ ba;18h thứ tư;17h thứ năm","8,9,10,11",20 năm,7
+18,Nguyễn Thị Trà My,Trường THCS Tàm Xá,Lớp 8,Cải thiện học lực,Vật lý,Online,4,Phan Văn Dương,Vật lý,"18h thứ năm;16h thứ bảy;17h chủ nhật","8,9,10,11,12",22 năm,6
+19,Miêu Mariam,THPT Nguyễn Gia Thiều,Lớp 11,Mở rộng kiến thức,"Văn học, Toán, Vật lý, Hoá học",Online,8,Trần Bích Phương,Toán học,"18h thứ hai;16h thứ ba;17h thứ sáu","9,10,11,12",6 năm,8
+20,Nguyễn Quang Khải,Trung học cơ sở tàm xá,Lớp 8,Mở rộng kiến thức,"Tiếng Anh, Toán",Trực tiếp,6,Trần Thị Vân,Tiếng Anh,"18h thứ hai;16h thứ tư;17h thứ sáu;19h thứ bảy","6,7,8,9",25 năm,7
+21,Chu Hương Giang,THPT Cổ Loa,Lớp 11,Mở rộng kiến thức,"Văn học, Sinh học",Trực tiếp,15,Lê Khánh Tùng,Văn học,"18h thứ ba;16h thứ năm;17h thứ bảy","10,11,12",7 năm,9
+22,Đặng Tiến Hưng,THPT Nguyễn Gia Thiều,Lớp 11,Thi lên đại học,"Toán, Vật lý",Trực tiếp,3,Dương Đình Thắng,Toán học,"18h thứ tư;16h thứ năm;15h thứ bảy","10,11,12",10 năm,7
+23,Lan Hương,THPT Cổ Loa,Lớp 11,Mở rộng kiến thức,Địa lý,Trực tiếp,7,Nguyễn Thị Thuỷ,Địa lý,"17h thứ ba;18h thứ tư;17h thứ năm","9,12",10 năm,7
+24,Nguyễn Hà Anh,THPT Cổ Loa,Lớp 11,Cải thiện học lực,"Hoá học, Sinh học, Tiếng Anh",Trực tiếp,6,Trần Thị Vân,Tiếng Anh,"18h thứ hai;16h thứ tư;17h thứ sáu;19h thứ bảy","6,7,8,9",25 năm,8
+25,Nguyễn Linh Phương,THCS Tàm Xá,Lớp 6,Mở rộng kiến thức,Vật lý,Trực tiếp,4,Phan Văn Dương,Vật lý,"18h thứ năm;16h thứ bảy;17h chủ nhật","8,9,10,11,12",22 năm,8
+26,Lê Khả My,THCS Tàm Xá,Lớp 8,Cải thiện học lực,"Toán, Địa lý",Online,8,Trần Bích Phương,Toán học,"18h thứ hai;16h thứ ba;17h thứ sáu","9,10,11,12",6 năm,8

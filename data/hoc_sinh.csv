@@ -1,0 +1,68 @@
+ID Học Sinh,Tên,Trường học hiện tại,Khối Lớp hiện tại,Mục tiêu học,Môn học yêu thích,Phương pháp học yêu thích
+1,Trần Hoàng Việt Vũ,THPT Cổ Loa,Lớp 10,Thi lên đại học,"Toán, Văn học, Vật lý",Trực tiếp
+2,Lê công tuấn dũng,Trung học cơ sở tàm xá,Lớp 8,Mở rộng kiến thức,Vật lý,Trực tiếp
+3,Phạm Quỳnh Trang,Thpt cổ loa,Lớp 11,Mở rộng kiến thức,Hoá học,Trực tiếp
+4,Nguyễn Phương Thảo,Trường THPT Cổ Loa,Lớp 12,Thi lên đại học,"Vật lý, Tiếng Anh",Online
+5,Nguyễn Hà Linh,Thpt Cổ Loa,Lớp 11,Cải thiện học lực,"Văn học, Toán, Vật lý",Trực tiếp
+6,Lê Khánh Ly,THPT Cổ Loa,Lớp 10,Thi lên đại học,"Hoá học, Vật lý",Trực tiếp
+7,Nguyễn Vân Thư,THPT Cổ Loa,Lớp 12,Thi lên đại học,Toán học,Trực tiếp
+8,Nguyễn Phương Thảo,THPT Cổ Loa,Lớp 12,Thi lên đại học,Toán học,Trực tiếp
+9,Nguyễn Anh Tuấn,THPT Cổ Loa,Lớp 11,Mở rộng kiến thức,"Vật lý, Hoá học",Online
+10,Ngô Thảo Nhi,THPT Cổ Loa,Lớp 10,Mở rộng kiến thức,"Lịch sử, Địa lý, Sinh học",Online
+11,lê thùy dương,thcs tàm xá,Lớp 8,Mở rộng kiến thức,"Văn học, Tiếng Anh",Online
+12,Nguyễn Hương Giang,THPT Cổ Loa,Lớp 11,Cải thiện học lực,"Văn học, Toán, Lịch sử",Trực tiếp
+13,Đào Phương Linh,THPT Vân Nội,Lớp 10,Cải thiện học lực,Sinh học,Trực tiếp
+14,Tăng Thùy Minh,THPT Nguyễn Gia Thiều,Lớp 11,Thi lên đại học,"Địa lý, Vật lý",Online
+15,Lê Bảo Ngọc,THPT CỔ LOA,Lớp 11,Mở rộng kiến thức,"Toán, Hoá học, Tiếng Anh",Trực tiếp
+16,Hoàng Khánh ly,Thcs tàm xa,Lớp 8,Cải thiện học lực,"Văn học, Lịch sử",Trực tiếp
+17,Trần Ngọc Đăng,THCS Tàm Xá,Lớp 8,Mở rộng kiến thức,"Sinh học, Địa lý",Online
+18,Nguyễn Thị Trà My,Trường THCS Tàm Xá,Lớp 8,Cải thiện học lực,Vật lý,Online
+19,Miêu Mariam,THPT Nguyễn Gia Thiều,Lớp 11,Mở rộng kiến thức,"Văn học, Toán, Vật lý, Hoá học",Online
+20,Nguyễn Quang Khải,Trung học cơ sở tàm xá,Lớp 8,Mở rộng kiến thức,"Tiếng Anh, Lịch sử",Trực tiếp
+21,Chu Hương Giang,THPT Cổ Loa,Lớp 11,Mở rộng kiến thức,"Văn học, Sinh học",Trực tiếp
+22,Đặng Tiến Hưng,THPT Nguyễn Gia Thiều,Lớp 11,Thi lên đại học,"Toán học, Vật lý",Trực tiếp
+23,Lan Hương,THPT Cổ Loa,Lớp 11,Mở rộng kiến thức,Địa lý,Trực tiếp
+24,Nguyễn Hà Anh,THPT Cổ Loa,Lớp 11,Cải thiện học lực,"Hoá học, Sinh học, Tiếng Anh",Trực tiếp
+25,Nguyễn Linh Phương,THCS Tàm Xá,Lớp 6,Mở rộng kiến thức,"Lịch sử, Văn học, Tiếng Anh",Trực tiếp
+26,Lê Khả My,THCS Tàm Xá,Lớp 8,Cải thiện học lực,"Toán học, Địa lý",Online
+27,Hoàng Ngọc Gia Long,THCS Tàm Xá,Lớp 8,Mở rộng kiến thức,Văn học,Trực tiếp
+28,Phạm Thu Hà,Thpt Nguyên Gia Thiều,Lớp 10,Mở rộng kiến thức,Hoá học,Trực tiếp
+29,Nguyễn Ngọc Khánh,THPT Nguyễn Gia Thiều,Lớp 11,Cải thiện học lực,"Vật lý, Toán",Trực tiếp
+30,Nguyễn Anh Tuấn,Thpt NGT,Lớp 12,Thi lên đại học,"Sinh học, Địa lý, Hoá học",Trực tiếp
+31,Ngô Hồng Khoa,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,Lịch sử,Online
+32,Trần Bảo Thư,THPT Nguyễn Gia Thiều,Lớp 11,Mở rộng kiến thức,"Văn học, Toán, Sinh học",Online
+33,Lê Gia Đức Anh,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Hoá học, Vật lý, Địa lý",Trực tiếp
+34,Lê Hà Linh,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Văn học, Lịch sử, Địa lý",Trực tiếp
+35,Nguyễn Thanh Hằng,THPT Nguyễn Gia Thiều,Lớp 10,Mở rộng kiến thức,"Toán học, Sinh học",Trực tiếp
+36,nguyễn phương huyền,thpt nguyễn gia thiều,Lớp 12,Thi lên đại học,"Vật lý, Tiếng Anh",Trực tiếp
+37,Nguyễn Thu Hiền,Trường THPT Nguyễn Gia Thiều,Lớp 10,Mở rộng kiến thức,"Địa lý, Hoá học",Online
+38,Đào Duy Quang Minh,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Lịch sử, Văn học",Online
+39,Trịnh Khánh Đan,THPT Nguyễn Gia Thiều,Lớp 11,Mở rộng kiến thức,"Văn học, Toán, Tiếng Anh",Online
+40,Trần Minh Tân,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Sinh học, Vật lý",Online
+41,Kiều Phương Nhung,THPT Nguyễn Gia Thiều,Lớp 11,Mở rộng kiến thức,"Toán học, Hoá học",Trực tiếp
+42,Nguyễn Công Dũng,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Lịch sử, Địa lý",Trực tiếp
+43,Tôn Khánh Thi,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Văn học, Vật lý, Địa lý",Trực tiếp
+44,Nguyễn Minh Ngọc,THPT Nguyễn Gia Thiều,Lớp 11,Mở rộng kiến thức,"Toán học, Sinh học, Lịch sử",Trực tiếp
+45,Nguyễn Thùy Dương,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Văn học, Hoá học, Tiếng Anh",Online
+46,Nguyễn Hương Trà,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Toán học, Sinh học, Tiếng Anh",Online
+47,Bùi Thuỳ trang,Thpt nguyễn gia thiều,Lớp 12,Thi lên đại học,"Văn học, Toán, Hoá học",Trực tiếp
+48,Nguyễn Thị Cẩm Vân,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Lịch sử, Hoá học",Trực tiếp
+49,Nguyễn Thị Ngọc Tâm,THPT Nguyễn Gia Thiều,Lớp 10,Mở rộng kiến thức,"Vật lý, Địa lý, Tiếng Anh",Trực tiếp
+50,Nguyễn Thị Thảo Minh,THPT Nguyễn Gia Thiều,Lớp 10,Mở rộng kiến thức,"Sinh học, Vật lý, Toán học",Online
+51,Nguyễn Phương Thảo,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Văn học, Hoá học, Sinh học",Trực tiếp
+52,Nguyễn Thanh Thảo,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Địa lý, Tiếng Anh",Trực tiếp
+53,Hoàng Hà Linh,thpt Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Toán học, Lịch sử",Online
+54,Nguyễn Minh Khuê,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Văn học, Toán học, Địa lý",Online
+55,Nguyễn Thanh Thảo,THPT Nguyễn Gia Thiều,Lớp 10,Mở rộng kiến thức,"Hoá học, Tiếng Anh",Trực tiếp
+56,Trần Lê Bảo Ngân,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Lịch sử, Sinh học",Trực tiếp
+57,Hà Minh Ngọc,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Văn học, Vật lý",Online
+58,Nguyễn Hà Linh,trường THPT Nguyễn Gia Thiều,Lớp 10,Cải thiện học lực,"Toán, Địa lý, Hoá học",Trực tiếp
+59,Thẩm Yến San,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Văn học, Tiếng Anh",Trực tiếp
+60,Nguyễn Như Quỳnh,THPT Nguyễn Gia Thiều,Lớp 10,Mở rộng kiến thức,"Vật lý, Toán học",Trực tiếp
+61,Nguyễn Minh Ngọc,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Hoá học, Sinh học",Online
+62,Trần Thanh Thúy,THPT Nguyễn Gia Thiều,Lớp 10,Mở rộng kiến thức,"Địa lý, Lịch sử",Online
+63,Lê Trúc Linh,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,"Toán học, Vật lý",Online
+64,Vũ Trung Hiếu,THPT Cổ Loa,Lớp 11,Mở rộng kiến thức,Tiếng Anh,Online
+65,Lê Ngọc Kim Chi,THCS Tàm Xá,Lớp 8,Cải thiện học lực,Toán học,Trực tiếp
+66,Hoàng Diệu Linh,THPT Nguyễn Gia Thiều,Lớp 12,Thi lên đại học,Hoá học,Trực tiếp
+67,Hoàng Ngọc Gia Long,THCS Tàm Xá,Lớp 8,Mở rộng kiến thức,"Toán, Văn, Vật lý",Trực tiếp

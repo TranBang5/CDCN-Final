@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Create Study Plan - EduRec{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Create Study Plan</h2>
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Plan Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required
+                            placeholder="Describe your learning goals and preferences..."></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i class="fas fa-chalkboard-teacher"></i> Selected Courses
+                        </h5>
+                        <div id="selectedCourses" class="list-group mb-3">
+                            <!-- Selected courses will be added here dynamically -->
+                        </div>
+                        <a href="{{ url_for('recommendations') }}#courses" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> Add Courses
+                        </a>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i class="fas fa-user-tie"></i> Selected Tutors
+                        </h5>
+                        <div id="selectedTutors" class="list-group mb-3">
+                            <!-- Selected tutors will be added here dynamically -->
+                        </div>
+                        <a href="{{ url_for('recommendations') }}#tutors" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> Add Tutors
+                        </a>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i class="fas fa-book"></i> Selected Materials
+                        </h5>
+                        <div id="selectedMaterials" class="list-group mb-3">
+                            <!-- Selected materials will be added here dynamically -->
+                        </div>
+                        <a href="{{ url_for('recommendations') }}#materials" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> Add Materials
+                        </a>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create Study Plan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Load selected items from session storage
+        function loadSelectedItems() {
+            const courses = JSON.parse(sessionStorage.getItem('selectedCourses') || '[]');
+            const tutors = JSON.parse(sessionStorage.getItem('selectedTutors') || '[]');
+            const materials = JSON.parse(sessionStorage.getItem('selectedMaterials') || '[]');
+
+            // Populate selected courses
+            $('#selectedCourses').empty();
+            courses.forEach(course => {
+                $('#selectedCourses').append(`
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${course.center_name}</h6>
+                            <small class="text-muted">${course.subject} - ${course.grade_level}</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" data-type="course" data-id="${course.id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `);
+            });
+
+            // Populate selected tutors
+            $('#selectedTutors').empty();
+            tutors.forEach(tutor => {
+                $('#selectedTutors').append(`
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${tutor.name}</h6>
+                            <small class="text-muted">${tutor.subject} - ${tutor.specialized_grade}</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" data-type="tutor" data-id="${tutor.id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `);
+            });
+
+            // Populate selected materials
+            $('#selectedMaterials').empty();
+            materials.forEach(material => {
+                $('#selectedMaterials').append(`
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${material.name}</h6>
+                            <small class="text-muted">${material.subject} - ${material.grade_level}</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" data-type="material" data-id="${material.id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `);
+            });
+        }
+
+        // Handle removing items
+        $(document).on('click', '.remove-item', function() {
+            const type = $(this).data('type');
+            const id = $(this).data('id');
+            const items = JSON.parse(sessionStorage.getItem(`selected${type.charAt(0).toUpperCase() + type.slice(1)}s`) || '[]');
+            const updatedItems = items.filter(item => item.id !== id);
+            sessionStorage.setItem(`selected${type.charAt(0).toUpperCase() + type.slice(1)}s`, JSON.stringify(updatedItems));
+            loadSelectedItems();
+        });
+
+        // Load selected items on page load
+        loadSelectedItems();
+    });
+</script>
+{% endblock %} 

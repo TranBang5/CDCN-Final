@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - EduRec{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Student Profile</h2>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="school" class="form-label">School</label>
+                        <input type="text" class="form-control" id="school" name="school" value="{{ current_user.school or '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="current_grade" class="form-label">Current Grade</label>
+                        <select class="form-select" id="current_grade" name="current_grade" required>
+                            <option value="">Select grade</option>
+                            {% for grade in range(6, 13) %}
+                                <option value="Grade {{ grade }}" {% if current_user.current_grade == 'Grade ' + grade|string %}selected{% endif %}>
+                                    Grade {{ grade }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="favorite_subjects" class="form-label">Favorite Subjects</label>
+                        <select class="form-select" id="favorite_subjects" name="favorite_subjects" multiple required>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                            <option value="Literature">Literature</option>
+                            <option value="History">History</option>
+                            <option value="Geography">Geography</option>
+                            <option value="English">English</option>
+                        </select>
+                        <div class="form-text">Hold Ctrl (Windows) or Command (Mac) to select multiple subjects</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="learning_goals" class="form-label">Learning Goals</label>
+                        <textarea class="form-control" id="learning_goals" name="learning_goals" rows="4" required>{{ current_user.learning_goals or '' }}</textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize select2 for multiple select
+    $(document).ready(function() {
+        $('#favorite_subjects').select2({
+            placeholder: "Select your favorite subjects",
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %} 

@@ -5,6 +5,7 @@ import numpy as np
 from datetime import datetime
 from models.recommender import RecommendationModel, load_and_preprocess_data
 import os
+import matplotlib.pyplot as plt
 
 class TrainingProgressCallback(tf.keras.callbacks.Callback):
     def __init__(self):
@@ -36,35 +37,86 @@ def validate_data(data):
     for df_name, df in data.items():
         if isinstance(df, pd.DataFrame):
             print(f"\nValidating {df_name}...")
-            # Check for missing values
             missing_values = df.isnull().sum()
             if missing_values.any():
                 print(f"Missing values in {df_name}:")
                 print(missing_values[missing_values > 0])
-                # Fill missing values with appropriate defaults
                 for col in df.columns:
                     if df[col].dtype in ['object', 'string']:
                         df[col].fillna('unknown', inplace=True)
                     else:
                         df[col].fillna(0, inplace=True)
             
-            # Replace zero values in numeric columns with small positive value
             numeric_columns = df.select_dtypes(include=['float32', 'float64', 'int32', 'int64']).columns
             for col in numeric_columns:
+                min_val = df[col].min()
+                max_val = df[col].max()
+                if max_val > min_val:
+                    df[col] = (df[col] - min_val) / (max_val - min_val)
                 df[col] = df[col].replace(0, 0.001)
             
             print(f"{df_name} shape: {df.shape}")
             print(f"{df_name} dtypes:\n{df.dtypes}")
+            
+            categorical_columns = [
+                'Trường học hiện tại', 'Khối Lớp hiện tại', 'Mục tiêu học',
+                'Môn học yêu thích', 'Phương pháp học yêu thích', 'Tên Trung Tâm',
+                'Môn học', 'Khối Lớp', 'Phương pháp học', 'Tên gia sư',
+                'Thời gian dạy học', 'Tên tài liệu', 'Loại tài liệu', 'Địa chỉ'
+            ]
+            for col in categorical_columns:
+                if col in df.columns:
+                    non_string = df[col][~df[col].apply(lambda x: isinstance(x, str))]
+                    if not non_string.empty:
+                        print(f"Non-string values in {df_name}.{col}: {non_string.tolist()}")
+                    print(f"Sample values in {df_name}.{col}: {df[col].head(5).tolist()}")
+    
+    # Validate vocabulary consistency
+    print("\nValidating vocabulary consistency...")
+    student_cols = ['Trường học hiện tại', 'Khối Lớp hiện tại', 'Mục tiêu học', 'Môn học yêu thích', 'Phương pháp học yêu thích']
+    for col in student_cols:
+        train_values = set(data['student_course_train'][col].unique())
+        student_values = set(data['student_data'][col].unique())
+        missing_in_student = train_values - student_values
+        if missing_in_student:
+            print(f"Warning: Values in student_course_train.{col} not in student_data.{col}: {missing_in_student}")
+
+def plot_history(history):
+    for dataset in ['course', 'tutor', 'material']:
+        hist = history[f'history_{dataset}']
+        plt.figure(figsize=(12, 4))
+        
+        plt.subplot(1, 2, 1)
+        plt.plot(hist['loss'], label='Loss')
+        plt.title(f'{dataset.capitalize()} Training Loss')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.legend()
+        
+        plt.subplot(1, 2, 2)
+        plt.plot(hist.get('factorized_top_k/top_1_categorical_accuracy', []), label='Top-1 Accuracy')
+        plt.plot(hist.get('factorized_top_k/top_5_categorical_accuracy', []), label='Top-5 Accuracy')
+        plt.plot(hist.get('factorized_top_k/top_10_categorical_accuracy', []), label='Top-10 Accuracy')
+        plt.title(f'{dataset.capitalize()} Training Accuracy')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.legend()
+        
+        plt.tight_layout()
+        plt.savefig(f'{dataset}_training_plot.png')
+        plt.close()
 
 def train_and_evaluate():
-    # Load and preprocess data
+    if os.environ.get('TF_ENABLE_ONEDNN_OPTS') == '0':
+        print("oneDNN optimizations are disabled.")
+    else:
+        print("oneDNN optimizations are enabled. To disable, set TF_ENABLE_ONEDNN_OPTS=0.")
+
     print("Loading and preprocessing data...")
     data = load_and_preprocess_data()
     
-    # Validate data
     validate_data(data)
     
-    # Extract data
     student_features = data['student_data']
     course_features = data['course_data']
     tutor_features = data['tutor_data']
@@ -72,8 +124,10 @@ def train_and_evaluate():
     student_course_train = data['student_course_train']
     student_tutor_train = data['student_tutor_train']
     student_material_train = data['student_material_train']
+    student_course_test = data['student_course_test']
+    student_tutor_test = data['student_tutor_test']
+    student_material_test = data['student_material_test']
     
-    # Initialize model
     print("Initializing RecommendationModel...")
     model = RecommendationModel(
         student_features=student_features,
@@ -85,94 +139,136 @@ def train_and_evaluate():
         student_material_train=student_material_train
     )
     
-    # Build model with sample input shape
     print("Building model...")
-    # Define input shape based on tutor dataset schema (most detailed from prior logs)
     input_shape = {
-        'ID Học Sinh': tf.TensorSpec(shape=(None,), dtype=tf.int64),
-        'Tên': tf.TensorSpec(shape=(None,), dtype=tf.string),
-        'Trường học hiện tại': tf.TensorSpec(shape=(None,), dtype=tf.string),
-        'Khối Lớp hiện tại': tf.TensorSpec(shape=(None,), dtype=tf.string),
-        'Mục tiêu học': tf.TensorSpec(shape=(None,), dtype=tf.string),
-        'Môn học yêu thích': tf.TensorSpec(shape=(None,), dtype=tf.string),
-        'Phương pháp học yêu thích': tf.TensorSpec(shape=(None,), dtype=tf.string),
-        'ID Gia Sư': tf.TensorSpec(shape=(None,), dtype=tf.int64),
-        'Tên gia sư': tf.TensorSpec(shape=(None,), dtype=tf.string),
-        'Môn học': tf.TensorSpec(shape=(None,), dtype=tf.string),
-        'Thời gian dạy học': tf.TensorSpec(shape=(None,), dtype=tf.string),
-        'Khối Lớp': tf.TensorSpec(shape=(None,), dtype=tf.string),
-        'Kinh nghiệm giảng dạy': tf.TensorSpec(shape=(None,), dtype=tf.float32),
-        'Đánh giá': tf.TensorSpec(shape=(None,), dtype=tf.int64)
+        'ID Học Sinh': (None,),
+        'Tên': (None,),
+        'Trường học hiện tại': (None,),
+        'Khối Lớp hiện tại': (None,),
+        'Mục tiêu học': (None,),
+        'Môn học yêu thích': (None,),
+        'Phương pháp học yêu thích': (None,),
+        'ID Trung Tâm': (None,),
+        'Tên Trung Tâm': (None,),
+        'Môn học': (None,),
+        'Khối Lớp': (None,),
+        'Phương pháp học': (None,),
+        'Thời gian': (None,),
+        'Chi phí': (None,),
+        'Địa chỉ': (None,),
+        'Đánh giá': (None,),
+        'ID Gia Sư': (None,),
+        'Tên gia sư': (None,),
+        'Thời gian dạy học': (None,),
+        'Kinh nghiệm giảng dạy': (None,),
+        'ID Tài Liệu': (None,),
+        'Tên tài liệu': (None,),
+        'Loại tài liệu': (None,)
     }
-    model.build(input_shape)
-    print("Model built successfully. Summary:")
-    model.summary()
+    print("Input shapes defined:", input_shape)
     
-    # Compile model
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001))
+    try:
+        model.build(input_shape)
+        print("Model built successfully. Summary:")
+        model.summary()
+    except Exception as e:
+        print(f"Error building model: {str(e)}")
+        raise
     
-    # Prepare datasets
-    batch_size = 8
-    course_train_dataset = model.course_train_dataset.batch(batch_size, drop_remainder=True).cache().prefetch(tf.data.AUTOTUNE)
-    tutor_train_dataset = model.tutor_train_dataset.batch(batch_size, drop_remainder=True).cache().prefetch(tf.data.AUTOTUNE)
-    material_train_dataset = model.material_train_dataset.batch(batch_size, drop_remainder=True).cache().prefetch(tf.data.AUTOTUNE)
+    optimizer = tf.keras.optimizers.Adam(
+        learning_rate=tf.keras.optimizers.schedules.ExponentialDecay(
+            initial_learning_rate=0.001,
+            decay_steps=1000,
+            decay_rate=0.9
+        )
+    )
+    model.compile(optimizer=optimizer)
     
-    # Training progress callback
+    batch_size = 32
+    course_train_dataset = data['student_course_train_dataset'].batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
+    tutor_train_dataset = data['student_tutor_train_dataset'].batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
+    material_train_dataset = data['student_material_train_dataset'].batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
+    
+    course_test_dataset = tf.data.Dataset.from_tensor_slices(dict(student_course_test)).batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
+    tutor_test_dataset = tf.data.Dataset.from_tensor_slices(dict(student_tutor_test)).batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
+    material_test_dataset = tf.data.Dataset.from_tensor_slices(dict(student_material_test)).batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
+    
     progress_callback = TrainingProgressCallback()
     
     try:
-        # Train on course data
-        print("\nTraining on Course Data...")
-        progress_callback.set_dataset("Course")
-        history_course = model.fit(
-            course_train_dataset,
-            epochs=5,
-            callbacks=[progress_callback],
-            verbose=0
-        )
-        print("Course training completed.")
-        print("Course training history:", history_course.history)
+        epochs = 20
+        history = {'history_course': {}, 'history_tutor': {}, 'history_material': {}}
         
-        # Train on tutor data
-        print("\nTraining on Tutor Data...")
-        progress_callback.set_dataset("Tutor")
-        history_tutor = model.fit(
-            tutor_train_dataset,
-            epochs=5,
-            callbacks=[progress_callback],
-            verbose=0
-        )
-        print("Tutor training completed.")
-        print("Tutor training history:", history_tutor.history)
+        for epoch in range(epochs):
+            print(f"\nEpoch {epoch + 1}/{epochs}")
+            
+            print("\nTraining on Course Data...")
+            progress_callback.set_dataset("Course")
+            history_course = model.fit(
+                course_train_dataset,
+                epochs=1,
+                callbacks=[progress_callback],
+                verbose=0
+            )
+            for key, value in history_course.history.items():
+                history['history_course'].setdefault(key, []).extend(value)
+            
+            print("\nTraining on Tutor Data...")
+            progress_callback.set_dataset("Tutor")
+            history_tutor = model.fit(
+                tutor_train_dataset,
+                epochs=1,
+                callbacks=[progress_callback],
+                verbose=0
+            )
+            for key, value in history_tutor.history.items():
+                history['history_tutor'].setdefault(key, []).extend(value)
+            
+            print("\nTraining on Material Data...")
+            progress_callback.set_dataset("Material")
+            history_material = model.fit(
+                material_train_dataset,
+                epochs=1,
+                callbacks=[progress_callback],
+                verbose=0
+            )
+            for key, value in history_material.history.items():
+                history['history_material'].setdefault(key, []).extend(value)
         
-        # Train on material data
-        print("\nTraining on Material Data...")
-        progress_callback.set_dataset("Material")
-        history_material = model.fit(
-            material_train_dataset,
-            epochs=5,
-            callbacks=[progress_callback],
-            verbose=0
-        )
-        print("Material training completed.")
-        print("Material training history:", history_material.history)
+        print("\nPlotting training history...")
+        plot_history(history)
         
-        # Verify model build state before saving
+        print("\nEvaluating on test datasets...")
+        test_metrics = {}
+        
+        print("Evaluating on Course test dataset...")
+        test_metrics['course'] = model.evaluate(course_test_dataset, return_dict=True)
+        
+        print("Evaluating on Tutor test dataset...")
+        test_metrics['tutor'] = model.evaluate(tutor_test_dataset, return_dict=True)
+        
+        print("Evaluating on Material test dataset...")
+        test_metrics['material'] = model.evaluate(material_test_dataset, return_dict=True)
+        
+        print("\nTest Metrics:")
+        for dataset, metrics in test_metrics.items():
+            print(f"{dataset.capitalize()} Test Metrics:", metrics)
+        
         print("Verifying model build state...")
         if model.built:
             print("Model is built. Number of weights:", len(model.weights))
         else:
             raise ValueError("Model is not built before saving weights!")
         
-        # Save the model
         print("Saving model weights...")
         model.save_weights('recommendation_model_weights.weights.h5')
         print("Model weights saved successfully to recommendation_model_weights.weights.h5")
         
         return {
-            'history_course': history_course.history,
-            'history_tutor': history_tutor.history,
-            'history_material': history_material.history
+            'history_course': history['history_course'],
+            'history_tutor': history['history_tutor'],
+            'history_material': history['history_material'],
+            'test_metrics': test_metrics
         }
     
     except Exception as e:
@@ -183,6 +279,8 @@ def train_and_evaluate():
 
 if __name__ == "__main__":
     print("Starting training process...")
+    print(f"TensorFlow version: {tf.__version__}")
+    print(f"TensorFlow Recommenders version: {tfrs.__version__}")
     history = train_and_evaluate()
     print("Training process completed.")
     print("Final training history:", history)

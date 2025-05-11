@@ -59,21 +59,24 @@ def validate_data(data):
             print(f"{df_name} dtypes:\n{df.dtypes}")
             
             categorical_columns = [
-                'Trường học hiện tại', 'Khối Lớp hiện tại', 'Mục tiêu học',
-                'Môn học yêu thích', 'Phương pháp học yêu thích', 'Tên Trung Tâm',
-                'Môn học', 'Khối Lớp', 'Phương pháp học', 'Tên gia sư',
-                'Thời gian dạy học', 'Tên tài liệu', 'Loại tài liệu', 'Địa chỉ'
+                'Trường học hiện tại', 'Mục tiêu học', 'Phương pháp học yêu thích',
+                'Tên Trung Tâm', 'Phương pháp học', 'Tên gia sư', 'Thời gian dạy học',
+                'Tên tài liệu', 'Địa chỉ'
             ]
+            multi_hot_columns = [col for col in df.columns if col.startswith('subject_') or col.startswith('grade_') or col.startswith('material_type_')]
             for col in categorical_columns:
                 if col in df.columns:
                     non_string = df[col][~df[col].apply(lambda x: isinstance(x, str))]
                     if not non_string.empty:
                         print(f"Non-string values in {df_name}.{col}: {non_string.tolist()}")
                     print(f"Sample values in {df_name}.{col}: {df[col].head(5).tolist()}")
+            for col in multi_hot_columns[:5]:  # Limit to 5 for brevity
+                if col in df.columns:
+                    print(f"Sample values in {df_name}.{col}: {df[col].head(5).tolist()}")
     
     # Validate vocabulary consistency
     print("\nValidating vocabulary consistency...")
-    student_cols = ['Trường học hiện tại', 'Khối Lớp hiện tại', 'Mục tiêu học', 'Môn học yêu thích', 'Phương pháp học yêu thích']
+    student_cols = ['Trường học hiện tại', 'Mục tiêu học', 'Phương pháp học yêu thích']
     for col in student_cols:
         train_values = set(data['student_course_train'][col].unique())
         student_values = set(data['student_data'][col].unique())
@@ -127,6 +130,9 @@ def train_and_evaluate():
     student_course_test = data['student_course_test']
     student_tutor_test = data['student_tutor_test']
     student_material_test = data['student_material_test']
+    subject_vocab = data['subject_vocab']
+    grade_vocab = data['grade_vocab']
+    material_type_vocab = data['material_type_vocab']
     
     print("Initializing RecommendationModel...")
     model = RecommendationModel(
@@ -136,22 +142,22 @@ def train_and_evaluate():
         material_features=material_features,
         student_course_train=student_course_train,
         student_tutor_train=student_tutor_train,
-        student_material_train=student_material_train
+        student_material_train=student_material_train,
+        subject_vocab=subject_vocab,
+        grade_vocab=grade_vocab,
+        material_type_vocab=material_type_vocab
     )
     
     print("Building model...")
+    # Define input shapes, including multi-hot columns
     input_shape = {
         'ID Học Sinh': (None,),
         'Tên': (None,),
         'Trường học hiện tại': (None,),
-        'Khối Lớp hiện tại': (None,),
         'Mục tiêu học': (None,),
-        'Môn học yêu thích': (None,),
         'Phương pháp học yêu thích': (None,),
         'ID Trung Tâm': (None,),
         'Tên Trung Tâm': (None,),
-        'Môn học': (None,),
-        'Khối Lớp': (None,),
         'Phương pháp học': (None,),
         'Thời gian': (None,),
         'Chi phí': (None,),
@@ -163,8 +169,15 @@ def train_and_evaluate():
         'Kinh nghiệm giảng dạy': (None,),
         'ID Tài Liệu': (None,),
         'Tên tài liệu': (None,),
-        'Loại tài liệu': (None,)
     }
+    # Add multi-hot columns dynamically
+    for subject in subject_vocab:
+        input_shape[f'subject_{subject}'] = (None,)
+    for grade in grade_vocab:
+        input_shape[f'grade_{grade}'] = (None,)
+    for material_type in material_type_vocab:
+        input_shape[f'material_type_{material_type}'] = (None,)
+    
     print("Input shapes defined:", input_shape)
     
     try:

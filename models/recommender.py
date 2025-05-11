@@ -31,6 +31,59 @@ def load_and_preprocess_data():
     student_material_train = pd.read_csv('data/hoc_sinh_tai_lieu_train.csv', dtype=categorical_dtypes, encoding='utf-8')
     student_material_test = pd.read_csv('data/hoc_sinh_tai_lieu_test.csv', dtype=categorical_dtypes, encoding='utf-8')
     
+    def create_multi_hot(df, column, prefix, vocab=None):
+        if column not in df.columns:
+            print(f"Warning: Column {column} not found in DataFrame")
+            return df, []
+        if vocab is None:
+            values = df[column].str.split(',').explode().str.strip().unique()
+            vocab = sorted([v for v in values if v and v != 'nan'])
+        multi_hot = np.zeros((len(df), len(vocab)), dtype=np.float32)
+        for i, row in enumerate(df[column].str.split(',')):
+            if isinstance(row, list):
+                for val in row:
+                    val = val.strip()
+                    if val in vocab:
+                        multi_hot[i, vocab.index(val)] = 1.0
+        multi_hot_df = pd.DataFrame(multi_hot, columns=[f"{prefix}_{v}" for v in vocab], index=df.index)
+        print(f"Created multi-hot columns for {column}: {[f'{prefix}_{v}' for v in vocab[:5]]}...")
+        return pd.concat([df, multi_hot_df], axis=1), vocab
+
+    # Create vocabularies
+    subject_vocab = sorted(set(student_data['Môn học yêu thích'].str.split(',').explode().str.strip()) | 
+                         set(course_data['Môn học'].str.split(',').explode().str.strip()) | 
+                         set(tutor_data['Môn học'].str.split(',').explode().str.strip()) | 
+                         set(material_data['Môn học'].str.split(',').explode().str.strip()))
+    grade_vocab = sorted(set(student_data['Khối Lớp hiện tại'].str.replace('Lớp ', '').str.split(',').explode().str.strip()) | 
+                        set(course_data['Khối Lớp'].str.split(',').explode().str.strip()) | 
+                        set(tutor_data['Khối Lớp'].str.split(',').explode().str.strip()) | 
+                        set(material_data['Khối Lớp'].str.split(',').explode().str.strip()))
+    material_type_vocab = sorted(set(material_data['Loại tài liệu'].str.split(',').explode().str.strip()))
+    
+    print(f"Subject vocab: {subject_vocab[:5]}... (total: {len(subject_vocab)})")
+    print(f"Grade vocab: {grade_vocab[:5]}... (total: {len(grade_vocab)})")
+    print(f"Material type vocab: {material_type_vocab[:5]}... (total: {len(material_type_vocab)})")
+
+    # Apply multi-hot encoding
+    for df in [student_data, student_course_train, student_course_test, student_tutor_train, student_tutor_test, student_material_train, student_material_test]:
+        df, _ = create_multi_hot(df, 'Môn học yêu thích', 'subject', subject_vocab)
+        df, _ = create_multi_hot(df, 'Khối Lớp hiện tại', 'grade', grade_vocab)
+    for df in [course_data, student_course_train, student_course_test]:
+        df, _ = create_multi_hot(df, 'Môn học', 'subject', subject_vocab)
+        df, _ = create_multi_hot(df, 'Khối Lớp', 'grade', grade_vocab)
+    for df in [tutor_data, student_tutor_train, student_tutor_test]:
+        df, _ = create_multi_hot(df, 'Môn học', 'subject', subject_vocab)
+        df, _ = create_multi_hot(df, 'Khối Lớp', 'grade', grade_vocab)
+    for df in [material_data, student_material_train, student_material_test]:
+        df, _ = create_multi_hot(df, 'Môn học', 'subject', subject_vocab)
+        df, _ = create_multi_hot(df, 'Khối Lớp', 'grade', grade_vocab)
+        df, _ = create_multi_hot(df, 'Loại tài liệu', 'material_type', material_type_vocab)
+
+    # Debug multi-hot columns
+    print("Multi-hot columns in course_data:", [col for col in course_data.columns if col.startswith('subject_') or col.startswith('grade_')][:10])
+    print("Multi-hot columns in tutor_data:", [col for col in tutor_data.columns if col.startswith('subject_') or col.startswith('grade_')][:10])
+    print("Multi-hot columns in material_data:", [col for col in material_data.columns if col.startswith('subject_') or col.startswith('grade_') or col.startswith('material_type_')][:10])
+
     minority_ids = student_tutor_train['ID Gia Sư'].value_counts()[student_tutor_train['ID Gia Sư'].value_counts() < 5].index
     for id_ in minority_ids:
         minority_df = student_tutor_train[student_tutor_train['ID Gia Sư'] == id_]
@@ -95,10 +148,13 @@ def load_and_preprocess_data():
     }
     
     categorical_columns = [
-        'Trường học hiện tại', 'Khối Lớp hiện tại', 'Mục tiêu học',
-        'Môn học yêu thích', 'Phương pháp học yêu thích', 'Tên Trung Tâm',
-        'Môn học', 'Khối Lớp', 'Phương pháp học', 'Tên gia sư',
-        'Thời gian dạy học', 'Tên tài liệu', 'Loại tài liệu', 'Địa chỉ'
+        'Trường học hiện tại', 'Mục tiêu học', 'Phương pháp học yêu thích',
+        'Tên Trung Tâm', 'Phương pháp học', 'Tên gia sư', 'Thời gian dạy học',
+        'Tên tài liệu', 'Địa chỉ'
+    ]
+    
+    multi_hot_columns = [
+        col for col in student_data.columns if col.startswith('subject_') or col.startswith('grade_') or col.startswith('material_type_')
     ]
     
     def preprocess_categorical(df):
@@ -150,14 +206,17 @@ def load_and_preprocess_data():
         for col in id_columns:
             if col in df.columns:
                 print(f"{col}: {df[col].iloc[0]}")
+        for col in multi_hot_columns[:5]:
+            if col in df.columns:
+                print(f"{col}: {df[col].iloc[0]}")
     
     def create_tf_dataset(df):
         dtype_dict = {}
         for col in df.columns:
             if col in categorical_columns or col in id_columns or col in ['Tên']:
                 dtype_dict[col] = tf.string
-            elif col in numeric_columns:
-                dtype_dict[col] = tf.float32 if numeric_columns[col] == 'float32' else tf.float64
+            elif col in numeric_columns or col in multi_hot_columns:
+                dtype_dict[col] = tf.float32 if numeric_columns.get(col, 'float32') == 'float32' else tf.float64
             else:
                 dtype_dict[col] = tf.string
         
@@ -206,25 +265,27 @@ def load_and_preprocess_data():
         'student_material_test': student_material_test,
         'student_course_train_dataset': student_course_train_dataset,
         'student_tutor_train_dataset': student_tutor_train_dataset,
-        'student_material_train_dataset': student_material_train_dataset
+        'student_material_train_dataset': student_material_train_dataset,
+        'subject_vocab': subject_vocab,
+        'grade_vocab': grade_vocab,
+        'material_type_vocab': material_type_vocab
     }
 
 class StudentTower(tf.keras.Model):
-    def __init__(self, unique_schools, unique_grades, unique_goals, unique_favorite_subjects, unique_learning_methods):
+    def __init__(self, unique_schools, unique_goals, unique_learning_methods, subject_vocab, grade_vocab):
         super().__init__()
         
-        # Convert vocabularies to strings
         unique_schools = [str(x) for x in unique_schools]
-        unique_grades = [str(x) for x in unique_grades]
         unique_goals = [str(x) for x in unique_goals]
-        unique_favorite_subjects = [str(x) for x in unique_favorite_subjects]
         unique_learning_methods = [str(x) for x in unique_learning_methods]
+        self.subject_vocab = [str(x) for x in subject_vocab]
+        self.grade_vocab = [str(x) for x in grade_vocab]
         
         print(f"Unique schools: {len(unique_schools)}, Sample: {unique_schools[:5]}")
-        print(f"Unique grades: {len(unique_grades)}, Sample: {unique_grades[:5]}")
         print(f"Unique goals: {len(unique_goals)}, Sample: {unique_goals[:5]}")
-        print(f"Unique favorite subjects: {len(unique_favorite_subjects)}, Sample: {unique_favorite_subjects[:5]}")
         print(f"Unique learning methods: {len(unique_learning_methods)}, Sample: {unique_learning_methods[:5]}")
+        print(f"Subject vocab size: {len(self.subject_vocab)}, Sample: {self.subject_vocab[:5]}")
+        print(f"Grade vocab size: {len(self.grade_vocab)}, Sample: {self.grade_vocab[:5]}")
         
         self.school_lookup = tf.keras.layers.StringLookup(
             vocabulary=unique_schools, mask_token=None, output_mode='int',
@@ -232,14 +293,6 @@ class StudentTower(tf.keras.Model):
         )
         self.school_embedding = tf.keras.layers.Embedding(
             input_dim=len(unique_schools) + 2, output_dim=32
-        )
-        
-        self.grade_lookup = tf.keras.layers.StringLookup(
-            vocabulary=unique_grades, mask_token=None, output_mode='int',
-            num_oov_indices=1, oov_token='[UNK]'
-        )
-        self.grade_embedding = tf.keras.layers.Embedding(
-            input_dim=len(unique_grades) + 2, output_dim=32
         )
         
         self.goal_lookup = tf.keras.layers.StringLookup(
@@ -250,14 +303,6 @@ class StudentTower(tf.keras.Model):
             input_dim=len(unique_goals) + 2, output_dim=32
         )
         
-        self.favorite_subject_lookup = tf.keras.layers.StringLookup(
-            vocabulary=unique_favorite_subjects, mask_token=None, output_mode='int',
-            num_oov_indices=1, oov_token='[UNK]'
-        )
-        self.favorite_subject_embedding = tf.keras.layers.Embedding(
-            input_dim=len(unique_favorite_subjects) + 2, output_dim=32
-        )
-        
         self.learning_method_lookup = tf.keras.layers.StringLookup(
             vocabulary=unique_learning_methods, mask_token=None, output_mode='int',
             num_oov_indices=1, oov_token='[UNK]'
@@ -266,72 +311,62 @@ class StudentTower(tf.keras.Model):
             input_dim=len(unique_learning_methods) + 2, output_dim=32
         )
         
+        self.subject_dense = tf.keras.layers.Dense(32, input_shape=(len(self.subject_vocab),))
+        self.grade_dense = tf.keras.layers.Dense(32, input_shape=(len(self.grade_vocab),))
+        
+        input_dim = 32 * 3 + 32 + 32
         self.dense_layers = tf.keras.Sequential([
-            tf.keras.layers.Dense(128, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.05), input_shape=(160,)),
+            tf.keras.layers.Dense(128, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.005), input_shape=(input_dim,)),
             tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Dense(64, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.05)),
+            tf.keras.layers.Dense(64, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.0005)),
             tf.keras.layers.Dropout(0.2),
             tf.keras.layers.Dense(32)
         ])
 
     def call(self, inputs):
-        # Debug inputs
         print("StudentTower input dtypes:", {k: v.dtype for k, v in inputs.items()})
-        tf.print("School input sample:", inputs['Trường học hiện tại'][:5])
-        tf.print("Grade input sample:", inputs['Khối Lớp hiện tại'][:5])
-        tf.print("Goal input sample:", inputs['Mục tiêu học'][:5])
-        tf.print("Favorite subject input sample:", inputs['Môn học yêu thích'][:5])
-        tf.print("Learning method input sample:", inputs['Phương pháp học yêu thích'][:5])
         
-        # Convert strings to indices
         school_indices = self.school_lookup(inputs['Trường học hiện tại'])
-        grade_indices = self.grade_lookup(inputs['Khối Lớp hiện tại'])
         goal_indices = self.goal_lookup(inputs['Mục tiêu học'])
-        favorite_subject_indices = self.favorite_subject_lookup(inputs['Môn học yêu thích'])
         learning_method_indices = self.learning_method_lookup(inputs['Phương pháp học yêu thích'])
         
-        # Debug indices
-        tf.print("School indices sample:", school_indices[:5])
-        tf.print("Grade indices sample:", grade_indices[:5])
-        tf.print("Goal indices sample:", goal_indices[:5])
-        tf.print("Favorite subject indices sample:", favorite_subject_indices[:5])
-        tf.print("Learning method indices sample:", learning_method_indices[:5])
-        
-        # Get embeddings
         school_embedding = tf.keras.layers.Dropout(0.3)(self.school_embedding(school_indices))
-        grade_embedding = self.grade_embedding(grade_indices)
         goal_embedding = self.goal_embedding(goal_indices)
-        favorite_subject_embedding = self.favorite_subject_embedding(favorite_subject_indices)
         learning_method_embedding = self.learning_method_embedding(learning_method_indices)
         
-        # Debug embedding shapes
-        print("School embedding shape:", school_embedding.shape)
-        print("Grade embedding shape:", grade_embedding.shape)
-        print("Goal embedding shape:", goal_embedding.shape)
-        print("Favorite subject embedding shape:", favorite_subject_embedding.shape)
-        print("Learning method embedding shape:", learning_method_embedding.shape)
+        subject_inputs = [inputs.get(f'subject_{s}', tf.zeros_like(inputs['Mục tiêu học'], dtype=tf.float32)) for s in self.subject_vocab]
+        subject_multi_hot = tf.stack(subject_inputs, axis=-1)
+        subject_embedding = self.subject_dense(subject_multi_hot)
         
-        # Concatenate embeddings
+        grade_inputs = [inputs.get(f'grade_{g}', tf.zeros_like(inputs['Mục tiêu học'], dtype=tf.float32)) for g in self.grade_vocab]
+        grade_multi_hot = tf.stack(grade_inputs, axis=-1)
+        grade_embedding = self.grade_dense(grade_multi_hot)
+        
+        print("School embedding shape:", school_embedding.shape)
+        print("Goal embedding shape:", goal_embedding.shape)
+        print("Learning method embedding shape:", learning_method_embedding.shape)
+        print("Subject embedding shape:", subject_embedding.shape)
+        print("Grade embedding shape:", grade_embedding.shape)
+        
         concatenated = tf.concat([
-            school_embedding, grade_embedding, goal_embedding,
-            favorite_subject_embedding, learning_method_embedding
+            school_embedding, goal_embedding, learning_method_embedding,
+            subject_embedding, grade_embedding
         ], axis=-1)
         print("Concatenated shape:", concatenated.shape)
         
-        # Process through dense layers
         output = self.dense_layers(concatenated)
         print("Output shape:", output.shape)
         
         return output
 
 class CourseModel(tf.keras.Model):
-    def __init__(self, unique_centers, unique_subjects, unique_grades, unique_methods):
+    def __init__(self, unique_centers, unique_methods, subject_vocab, grade_vocab):
         super().__init__()
         
         unique_centers = [str(x) for x in unique_centers]
-        unique_subjects = [str(x) for x in unique_subjects]
-        unique_grades = [str(x) for x in unique_grades]
         unique_methods = [str(x) for x in unique_methods]
+        self.subject_vocab = [str(x) for x in subject_vocab]
+        self.grade_vocab = [str(x) for x in grade_vocab]
         
         self.center_lookup = tf.keras.layers.StringLookup(
             vocabulary=unique_centers, mask_token=None, output_mode='int',
@@ -339,22 +374,6 @@ class CourseModel(tf.keras.Model):
         )
         self.center_embedding = tf.keras.layers.Embedding(
             input_dim=len(unique_centers) + 2, output_dim=32
-        )
-        
-        self.subject_lookup = tf.keras.layers.StringLookup(
-            vocabulary=unique_subjects, mask_token=None, output_mode='int',
-            num_oov_indices=1, oov_token='[UNK]'
-        )
-        self.subject_embedding = tf.keras.layers.Embedding(
-            input_dim=len(unique_subjects) + 2, output_dim=32
-        )
-        
-        self.grade_lookup = tf.keras.layers.StringLookup(
-            vocabulary=unique_grades, mask_token=None, output_mode='int',
-            num_oov_indices=1, oov_token='[UNK]'
-        )
-        self.grade_embedding = tf.keras.layers.Embedding(
-            input_dim=len(unique_grades) + 2, output_dim=32
         )
         
         self.method_lookup = tf.keras.layers.StringLookup(
@@ -365,13 +384,17 @@ class CourseModel(tf.keras.Model):
             input_dim=len(unique_methods) + 2, output_dim=32
         )
         
+        self.subject_dense = tf.keras.layers.Dense(32, input_shape=(len(self.subject_vocab),))
+        self.grade_dense = tf.keras.layers.Dense(32, input_shape=(len(self.grade_vocab),))
+        
         self.cost_dense = tf.keras.layers.Dense(32)
         self.time_dense = tf.keras.layers.Dense(32)
         
+        input_dim = 32 * 2 + 32 + 32 + 32 + 32
         self.dense_layers = tf.keras.Sequential([
-            tf.keras.layers.Dense(256, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.01), input_shape=(192,)),
+            tf.keras.layers.Dense(256, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.005), input_shape=(input_dim,)),
             tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Dense(128, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+            tf.keras.layers.Dense(128, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.005)),
             tf.keras.layers.Dropout(0.2),
             tf.keras.layers.Dense(32)
         ])
@@ -379,59 +402,58 @@ class CourseModel(tf.keras.Model):
         self.candidate_embeddings = None
 
     def call(self, inputs):
-        # Debug inputs
+        print("CourseModel input keys:", list(inputs.keys()))
         print("CourseModel input dtypes:", {k: v.dtype for k, v in inputs.items()})
         
-        # Ensure inputs are properly typed
-        cost = tf.cast(inputs['Chi phí'], tf.float32)
-        time = tf.cast(inputs['Thời gian'], tf.float32)
+        cost = tf.cast(inputs.get('Chi phí', tf.zeros_like(inputs['Tên Trung Tâm'], dtype=tf.float32)), tf.float32)
+        time = tf.cast(inputs.get('Thời gian', tf.zeros_like(inputs['Tên Trung Tâm'], dtype=tf.float32)), tf.float32)
         
         cost_2d = tf.expand_dims(cost, axis=-1)
         time_2d = tf.expand_dims(time, axis=-1)
         
-        # Convert strings to indices
         center_indices = self.center_lookup(inputs['Tên Trung Tâm'])
-        subject_indices = self.subject_lookup(inputs['Môn học'])
-        grade_indices = self.grade_lookup(inputs['Khối Lớp'])
         method_indices = self.method_lookup(inputs['Phương pháp học'])
         
-        # Get embeddings
         center_embedding = self.center_embedding(center_indices)
-        subject_embedding = self.subject_embedding(subject_indices)
-        grade_embedding = self.grade_embedding(grade_indices)
         method_embedding = self.method_embedding(method_indices)
+        
+        subject_inputs = [inputs.get(f'subject_{s}', tf.zeros_like(inputs['Tên Trung Tâm'], dtype=tf.float32)) for s in self.subject_vocab]
+        subject_multi_hot = tf.stack(subject_inputs, axis=-1)
+        subject_embedding = self.subject_dense(subject_multi_hot)
+        
+        grade_inputs = [inputs.get(f'grade_{g}', tf.zeros_like(inputs['Tên Trung Tâm'], dtype=tf.float32)) for g in self.grade_vocab]
+        grade_multi_hot = tf.stack(grade_inputs, axis=-1)
+        grade_embedding = self.grade_dense(grade_multi_hot)
+        
         cost_embedding = self.cost_dense(cost_2d)
         time_embedding = self.time_dense(time_2d)
         
-        # Debug embedding shapes
         print("Center embedding shape:", center_embedding.shape)
+        print("Method embedding shape:", method_embedding.shape)
         print("Subject embedding shape:", subject_embedding.shape)
         print("Grade embedding shape:", grade_embedding.shape)
-        print("Method embedding shape:", method_embedding.shape)
         print("Cost embedding shape:", cost_embedding.shape)
         print("Time embedding shape:", time_embedding.shape)
         
-        # Concatenate embeddings
         concatenated = tf.concat([
-            center_embedding, subject_embedding, grade_embedding,
-            method_embedding, cost_embedding, time_embedding
+            center_embedding, method_embedding, subject_embedding,
+            grade_embedding, cost_embedding, time_embedding
         ], axis=-1)
         print("Concatenated shape:", concatenated.shape)
         
-        # Process through dense layers
         output = self.dense_layers(concatenated)
         print("Output shape:", output.shape)
         
         return output
 
 class TutorModel(tf.keras.Model):
-    def __init__(self, unique_tutors, unique_subjects, unique_grades, unique_teaching_times):
+    def __init__(self, unique_tutors, unique_teaching_times, subject_vocab, grade_vocab):
         super().__init__()
         
         unique_tutors = [str(x) for x in unique_tutors]
-        unique_subjects = [str(x) for x in unique_subjects]
-        unique_grades = [str(x) for x in unique_grades]
         unique_teaching_times = [str(x) for x in unique_teaching_times]
+        self.subject_vocab = [str(x) for x in subject_vocab]
+        self.grade_vocab = [str(x) for x in grade_vocab]
         
         self.tutor_lookup = tf.keras.layers.StringLookup(
             vocabulary=unique_tutors, mask_token=None, output_mode='int',
@@ -439,22 +461,6 @@ class TutorModel(tf.keras.Model):
         )
         self.tutor_embedding = tf.keras.layers.Embedding(
             input_dim=len(unique_tutors) + 2, output_dim=32
-        )
-        
-        self.subject_lookup = tf.keras.layers.StringLookup(
-            vocabulary=unique_subjects, mask_token=None, output_mode='int',
-            num_oov_indices=1, oov_token='[UNK]'
-        )
-        self.subject_embedding = tf.keras.layers.Embedding(
-            input_dim=len(unique_subjects) + 2, output_dim=32
-        )
-        
-        self.grade_lookup = tf.keras.layers.StringLookup(
-            vocabulary=unique_grades, mask_token=None, output_mode='int',
-            num_oov_indices=1, oov_token='[UNK]'
-        )
-        self.grade_embedding = tf.keras.layers.Embedding(
-            input_dim=len(unique_grades) + 2, output_dim=32
         )
         
         self.teaching_time_lookup = tf.keras.layers.StringLookup(
@@ -465,12 +471,16 @@ class TutorModel(tf.keras.Model):
             input_dim=len(unique_teaching_times) + 2, output_dim=32
         )
         
+        self.subject_dense = tf.keras.layers.Dense(32, input_shape=(len(self.subject_vocab),))
+        self.grade_dense = tf.keras.layers.Dense(32, input_shape=(len(self.grade_vocab),))
+        
         self.experience_dense = tf.keras.layers.Dense(32)
         
+        input_dim = 32 * 2 + 32 + 32 + 32
         self.dense_layers = tf.keras.Sequential([
-            tf.keras.layers.Dense(256, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.01), input_shape=(160,)),
+            tf.keras.layers.Dense(256, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.005), input_shape=(input_dim,)),
             tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Dense(128, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+            tf.keras.layers.Dense(128, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.005)),
             tf.keras.layers.Dropout(0.2),
             tf.keras.layers.Dense(32)
         ])
@@ -478,54 +488,53 @@ class TutorModel(tf.keras.Model):
         self.candidate_embeddings = None
 
     def call(self, inputs):
-        # Debug inputs
+        print("TutorModel input keys:", list(inputs.keys()))
         print("TutorModel input dtypes:", {k: v.dtype for k, v in inputs.items()})
         
-        # Ensure inputs are properly typed
-        experience = tf.cast(inputs['Kinh nghiệm giảng dạy'], tf.float32)
+        experience = tf.cast(inputs.get('Kinh nghiệm giảng dạy', tf.zeros_like(inputs['Tên gia sư'], dtype=tf.float32)), tf.float32)
         experience_2d = tf.expand_dims(experience, axis=-1)
         
-        # Convert strings to indices
         tutor_indices = self.tutor_lookup(inputs['Tên gia sư'])
-        subject_indices = self.subject_lookup(inputs['Môn học'])
-        grade_indices = self.grade_lookup(inputs['Khối Lớp'])
         teaching_time_indices = self.teaching_time_lookup(inputs['Thời gian dạy học'])
         
-        # Get embeddings
         tutor_embedding = self.tutor_embedding(tutor_indices)
-        subject_embedding = self.subject_embedding(subject_indices)
-        grade_embedding = self.grade_embedding(grade_indices)
         teaching_time_embedding = self.teaching_time_embedding(teaching_time_indices)
+        
+        subject_inputs = [inputs.get(f'subject_{s}', tf.zeros_like(inputs['Tên gia sư'], dtype=tf.float32)) for s in self.subject_vocab]
+        subject_multi_hot = tf.stack(subject_inputs, axis=-1)
+        subject_embedding = self.subject_dense(subject_multi_hot)
+        
+        grade_inputs = [inputs.get(f'grade_{g}', tf.zeros_like(inputs['Tên gia sư'], dtype=tf.float32)) for g in self.grade_vocab]
+        grade_multi_hot = tf.stack(grade_inputs, axis=-1)
+        grade_embedding = self.grade_dense(grade_multi_hot)
+        
         experience_embedding = self.experience_dense(experience_2d)
         
-        # Debug embedding shapes
         print("Tutor embedding shape:", tutor_embedding.shape)
+        print("Teaching time embedding shape:", teaching_time_embedding.shape)
         print("Subject embedding shape:", subject_embedding.shape)
         print("Grade embedding shape:", grade_embedding.shape)
-        print("Teaching time embedding shape:", teaching_time_embedding.shape)
         print("Experience embedding shape:", experience_embedding.shape)
         
-        # Concatenate embeddings
         concatenated = tf.concat([
-            tutor_embedding, subject_embedding, grade_embedding,
-            teaching_time_embedding, experience_embedding
+            tutor_embedding, teaching_time_embedding, subject_embedding,
+            grade_embedding, experience_embedding
         ], axis=-1)
         print("Concatenated shape:", concatenated.shape)
         
-        # Process through dense layers
         output = self.dense_layers(concatenated)
         print("Output shape:", output.shape)
         
         return output
 
 class MaterialModel(tf.keras.Model):
-    def __init__(self, unique_materials, unique_subjects, unique_grades, unique_types):
+    def __init__(self, unique_materials, subject_vocab, grade_vocab, material_type_vocab):
         super().__init__()
         
         unique_materials = [str(x) for x in unique_materials]
-        unique_subjects = [str(x) for x in unique_subjects]
-        unique_grades = [str(x) for x in unique_grades]
-        unique_types = [str(x) for x in unique_types]
+        self.subject_vocab = [str(x) for x in subject_vocab]
+        self.grade_vocab = [str(x) for x in grade_vocab]
+        self.material_type_vocab = [str(x) for x in material_type_vocab]
         
         self.material_lookup = tf.keras.layers.StringLookup(
             vocabulary=unique_materials, mask_token=None, output_mode='int',
@@ -535,34 +544,15 @@ class MaterialModel(tf.keras.Model):
             input_dim=len(unique_materials) + 2, output_dim=32
         )
         
-        self.subject_lookup = tf.keras.layers.StringLookup(
-            vocabulary=unique_subjects, mask_token=None, output_mode='int',
-            num_oov_indices=1, oov_token='[UNK]'
-        )
-        self.subject_embedding = tf.keras.layers.Embedding(
-            input_dim=len(unique_subjects) + 2, output_dim=32
-        )
+        self.subject_dense = tf.keras.layers.Dense(32, input_shape=(len(self.subject_vocab),))
+        self.grade_dense = tf.keras.layers.Dense(32, input_shape=(len(self.grade_vocab),))
+        self.type_dense = tf.keras.layers.Dense(32, input_shape=(len(self.material_type_vocab),))
         
-        self.grade_lookup = tf.keras.layers.StringLookup(
-            vocabulary=unique_grades, mask_token=None, output_mode='int',
-            num_oov_indices=1, oov_token='[UNK]'
-        )
-        self.grade_embedding = tf.keras.layers.Embedding(
-            input_dim=len(unique_grades) + 2, output_dim=32
-        )
-        
-        self.type_lookup = tf.keras.layers.StringLookup(
-            vocabulary=unique_types, mask_token=None, output_mode='int',
-            num_oov_indices=1, oov_token='[UNK]'
-        )
-        self.type_embedding = tf.keras.layers.Embedding(
-            input_dim=len(unique_types) + 2, output_dim=32
-        )
-        
+        input_dim = 32 + 32 + 32 + 32
         self.dense_layers = tf.keras.Sequential([
-            tf.keras.layers.Dense(256, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.01), input_shape=(128,)),
+            tf.keras.layers.Dense(256, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.005), input_shape=(input_dim,)),
             tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Dense(128, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+            tf.keras.layers.Dense(128, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.005)),
             tf.keras.layers.Dropout(0.2),
             tf.keras.layers.Dense(32)
         ])
@@ -570,35 +560,36 @@ class MaterialModel(tf.keras.Model):
         self.candidate_embeddings = None
 
     def call(self, inputs):
-        # Debug inputs
+        print("MaterialModel input keys:", list(inputs.keys()))
         print("MaterialModel input dtypes:", {k: v.dtype for k, v in inputs.items()})
         
-        # Convert strings to indices
         material_indices = self.material_lookup(inputs['Tên tài liệu'])
-        subject_indices = self.subject_lookup(inputs['Môn học'])
-        grade_indices = self.grade_lookup(inputs['Khối Lớp'])
-        type_indices = self.type_lookup(inputs['Loại tài liệu'])
         
-        # Get embeddings
         material_embedding = self.material_embedding(material_indices)
-        subject_embedding = self.subject_embedding(subject_indices)
-        grade_embedding = self.grade_embedding(grade_indices)
-        type_embedding = self.type_embedding(type_indices)
         
-        # Debug embedding shapes
+        subject_inputs = [inputs.get(f'subject_{s}', tf.zeros_like(inputs['Tên tài liệu'], dtype=tf.float32)) for s in self.subject_vocab]
+        subject_multi_hot = tf.stack(subject_inputs, axis=-1)
+        subject_embedding = self.subject_dense(subject_multi_hot)
+        
+        grade_inputs = [inputs.get(f'grade_{g}', tf.zeros_like(inputs['Tên tài liệu'], dtype=tf.float32)) for g in self.grade_vocab]
+        grade_multi_hot = tf.stack(grade_inputs, axis=-1)
+        grade_embedding = self.grade_dense(grade_multi_hot)
+        
+        type_inputs = [inputs.get(f'material_type_{t}', tf.zeros_like(inputs['Tên tài liệu'], dtype=tf.float32)) for t in self.material_type_vocab]
+        type_multi_hot = tf.stack(type_inputs, axis=-1)
+        type_embedding = self.type_dense(type_multi_hot)
+        
         print("Material embedding shape:", material_embedding.shape)
         print("Subject embedding shape:", subject_embedding.shape)
         print("Grade embedding shape:", grade_embedding.shape)
         print("Type embedding shape:", type_embedding.shape)
         
-        # Concatenate embeddings
         concatenated = tf.concat([
             material_embedding, subject_embedding,
             grade_embedding, type_embedding
         ], axis=-1)
         print("Concatenated shape:", concatenated.shape)
         
-        # Process through dense layers
         output = self.dense_layers(concatenated)
         print("Output shape:", output.shape)
         
@@ -606,7 +597,8 @@ class MaterialModel(tf.keras.Model):
 
 class RecommendationModel(tfrs.Model):
     def __init__(self, student_features, course_features, tutor_features, material_features,
-                 student_course_train, student_tutor_train, student_material_train):
+                 student_course_train, student_tutor_train, student_material_train,
+                 subject_vocab, grade_vocab, material_type_vocab):
         super().__init__()
         
         print("Initializing RecommendationModel...")
@@ -616,23 +608,11 @@ class RecommendationModel(tfrs.Model):
             [str(x) for x in student_tutor_train['Trường học hiện tại'].unique()] +
             [str(x) for x in student_material_train['Trường học hiện tại'].unique()]
         ))
-        unique_grades = list(set(
-            [str(x) for x in student_features['Khối Lớp hiện tại'].unique()] +
-            [str(x) for x in student_course_train['Khối Lớp hiện tại'].unique()] +
-            [str(x) for x in student_tutor_train['Khối Lớp hiện tại'].unique()] +
-            [str(x) for x in student_material_train['Khối Lớp hiện tại'].unique()]
-        ))
         unique_goals = list(set(
             [str(x) for x in student_features['Mục tiêu học'].unique()] +
             [str(x) for x in student_course_train['Mục tiêu học'].unique()] +
             [str(x) for x in student_tutor_train['Mục tiêu học'].unique()] +
             [str(x) for x in student_material_train['Mục tiêu học'].unique()]
-        ))
-        unique_favorite_subjects = list(set(
-            [str(x) for x in student_features['Môn học yêu thích'].unique()] +
-            [str(x) for x in student_course_train['Môn học yêu thích'].unique()] +
-            [str(x) for x in student_tutor_train['Môn học yêu thích'].unique()] +
-            [str(x) for x in student_material_train['Môn học yêu thích'].unique()]
         ))
         unique_learning_methods = list(set(
             [str(x) for x in student_features['Phương pháp học yêu thích'].unique()] +
@@ -642,44 +622,45 @@ class RecommendationModel(tfrs.Model):
         ))
         
         unique_centers = [str(x) for x in course_features['Tên Trung Tâm'].unique()]
-        unique_course_subjects = [str(x) for x in course_features['Môn học'].unique()]
-        unique_course_grades = [str(x) for x in course_features['Khối Lớp'].unique()]
         unique_course_methods = [str(x) for x in course_features['Phương pháp học'].unique()]
         
         unique_tutors = [str(x) for x in tutor_features['Tên gia sư'].unique()]
-        unique_tutor_subjects = [str(x) for x in tutor_features['Môn học'].unique()]
-        unique_tutor_grades = [str(x) for x in tutor_features['Khối Lớp'].unique()]
         unique_teaching_times = [str(x) for x in tutor_features['Thời gian dạy học'].unique()]
         
         unique_materials = [str(x) for x in material_features['Tên tài liệu'].unique()]
-        unique_material_subjects = [str(x) for x in material_features['Môn học'].unique()]
-        unique_material_grades = [str(x) for x in material_features['Khối Lớp'].unique()]
-        unique_material_types = [str(x) for x in material_features['Loại tài liệu'].unique()]
         
         self.student_model = StudentTower(
-            unique_schools, unique_grades, unique_goals,
-            unique_favorite_subjects, unique_learning_methods
+            unique_schools, unique_goals, unique_learning_methods,
+            subject_vocab, grade_vocab
         )
         
         self.course_model = CourseModel(
-            unique_centers, unique_course_subjects,
-            unique_course_grades, unique_course_methods
+            unique_centers, unique_course_methods,
+            subject_vocab, grade_vocab
         )
         
         self.tutor_model = TutorModel(
-            unique_tutors, unique_tutor_subjects,
-            unique_tutor_grades, unique_teaching_times
+            unique_tutors, unique_teaching_times,
+            subject_vocab, grade_vocab
         )
         
         self.material_model = MaterialModel(
-            unique_materials, unique_material_subjects,
-            unique_material_grades, unique_material_types
+            unique_materials, subject_vocab, grade_vocab, material_type_vocab
         )
         
         # Compute candidate embeddings
+        course_columns = [
+            'ID Trung Tâm', 'Tên Trung Tâm', 'Phương pháp học', 'Thời gian', 'Chi phí', 'Địa chỉ', 'Đánh giá'
+        ] + [f'subject_{s}' for s in subject_vocab] + [f'grade_{g}' for g in grade_vocab]
+        print("Course columns for candidate dataset:", course_columns)
+        # Filter out columns that don't exist
+        available_course_columns = [col for col in course_columns if col in course_features.columns]
+        print("Available course columns:", available_course_columns)
+        course_dataset = tf.data.Dataset.from_tensor_slices({
+            k: v for k, v in dict(course_features).items() if k in available_course_columns
+        }).batch(32)
         course_embeddings = []
         course_ids = []
-        course_dataset = tf.data.Dataset.from_tensor_slices(dict(course_features)).batch(32)
         for batch in course_dataset:
             embeddings = self.course_model(batch)
             ids = tf.strings.join(['course_', tf.strings.as_string(batch['ID Trung Tâm'])])
@@ -694,9 +675,14 @@ class RecommendationModel(tfrs.Model):
         print(f"Course embeddings final shape: {self.course_model.candidate_embeddings['embeddings'].shape}")
         print(f"Course IDs final shape: {self.course_model.candidate_embeddings['identifiers'].shape}")
         
+        tutor_columns = [
+            'ID Gia Sư', 'Tên gia sư', 'Thời gian dạy học', 'Kinh nghiệm giảng dạy'
+        ] + [f'subject_{s}' for s in subject_vocab] + [f'grade_{g}' for g in grade_vocab]
+        print("Tutor columns for candidate dataset:", tutor_columns)
+        available_tutor_columns = [col for col in tutor_columns if col in tutor_features.columns]
+        print("Available tutor columns:", available_tutor_columns)
         tutor_dataset = tf.data.Dataset.from_tensor_slices({
-            k: v for k, v in dict(tutor_features).items()
-            if k in ['ID Gia Sư', 'Tên gia sư', 'Môn học', 'Khối Lớp', 'Thời gian dạy học', 'Kinh nghiệm giảng dạy']
+            k: v for k, v in dict(tutor_features).items() if k in available_tutor_columns
         }).batch(32)
         tutor_embeddings = []
         tutor_ids = []
@@ -714,9 +700,17 @@ class RecommendationModel(tfrs.Model):
         print(f"Tutor embeddings final shape: {self.tutor_model.candidate_embeddings['embeddings'].shape}")
         print(f"Tutor IDs final shape: {self.tutor_model.candidate_embeddings['identifiers'].shape}")
         
+        material_columns = [
+            'ID Tài Liệu', 'Tên tài liệu'
+        ] + [f'subject_{s}' for s in subject_vocab] + [f'grade_{g}' for g in grade_vocab] + [f'material_type_{t}' for t in material_type_vocab]
+        print("Material columns for candidate dataset:", material_columns)
+        available_material_columns = [col for col in material_columns if col in material_features.columns]
+        print("Available material columns:", available_material_columns)
+        material_dataset = tf.data.Dataset.from_tensor_slices({
+            k: v for k, v in dict(material_features).items() if k in available_material_columns
+        }).batch(32)
         material_embeddings = []
         material_ids = []
-        material_dataset = tf.data.Dataset.from_tensor_slices(dict(material_features)).batch(32)
         for batch in material_dataset:
             embeddings = self.material_model(batch)
             ids = tf.strings.join(['material_', tf.strings.as_string(batch['ID Tài Liệu'])])
@@ -731,7 +725,6 @@ class RecommendationModel(tfrs.Model):
         print(f"Material embeddings final shape: {self.material_model.candidate_embeddings['embeddings'].shape}")
         print(f"Material IDs final shape: {self.material_model.candidate_embeddings['identifiers'].shape}")
         
-        # Combine all candidate embeddings and IDs
         self.all_candidate_embeddings = tf.concat([
             self.course_model.candidate_embeddings['embeddings'],
             self.tutor_model.candidate_embeddings['embeddings'],
@@ -745,14 +738,12 @@ class RecommendationModel(tfrs.Model):
         
         self.all_candidate_embeddings = tf.convert_to_tensor(self.all_candidate_embeddings, dtype=tf.float32)
         
-        # Ensure all_candidate_ids are valid UTF-8 strings
         self.all_candidate_ids = tf.constant(
             [id_.decode('utf-8') if isinstance(id_, bytes) else str(id_) for id_ in self.all_candidate_ids.numpy()],
             dtype=tf.string,
             shape=self.all_candidate_ids.shape
         )
         
-        # Validate candidate IDs
         unique_ids, counts = np.unique(self.all_candidate_ids.numpy(), return_counts=True)
         duplicates = unique_ids[counts > 1]
         if len(duplicates) > 0:
@@ -772,7 +763,6 @@ class RecommendationModel(tfrs.Model):
         print(f"Sample candidate IDs: {self.all_candidate_ids[:5].numpy()}")
         print(f"All candidate IDs dtype: {self.all_candidate_ids.dtype}")
         
-        # Create StringLookup for candidate IDs
         candidate_id_vocabulary = [id_ for id_ in self.all_candidate_ids.numpy()]
         self.candidate_id_lookup = tf.keras.layers.StringLookup(
             vocabulary=candidate_id_vocabulary,
@@ -782,7 +772,6 @@ class RecommendationModel(tfrs.Model):
             oov_token='[UNK]'
         )
         
-        # Initialize BruteForce layer
         self.streaming = tfrs.layers.factorized_top_k.BruteForce(k=10)
         self.streaming.index(
             candidates=self.all_candidate_embeddings,
@@ -790,7 +779,6 @@ class RecommendationModel(tfrs.Model):
         )
         print(f"BruteForce index created. Number of candidates: {self.all_candidate_embeddings.shape[0]}")
         
-        # Debug candidate dataset
         candidate_dataset = tf.data.Dataset.from_tensor_slices({
             'embeddings': self.all_candidate_embeddings,
             'identifiers': self.all_candidate_ids
@@ -800,7 +788,6 @@ class RecommendationModel(tfrs.Model):
             print(f"Candidate dataset sample - embeddings shape: {embeddings.shape}, dtype: {embeddings.dtype}")
             print(f"Candidate dataset sample - identifiers shape: {identifiers.shape}, dtype: {identifiers.dtype}")
         
-        # Initialize Retrieval task with BruteForce layer
         self.task = tfrs.tasks.Retrieval(
             metrics=tfrs.metrics.FactorizedTopK(
                 candidates=self.streaming,
@@ -808,7 +795,6 @@ class RecommendationModel(tfrs.Model):
             )
         )
         
-        # Store training datasets
         self.course_train_dataset = tf.data.Dataset.from_tensor_slices(dict(student_course_train))
         self.tutor_train_dataset = tf.data.Dataset.from_tensor_slices(dict(student_tutor_train))
         self.material_train_dataset = tf.data.Dataset.from_tensor_slices(dict(student_material_train))
@@ -851,7 +837,6 @@ class RecommendationModel(tfrs.Model):
         print(f"Candidate IDs dtype: {candidate_ids.dtype}")
         tf.print("Sample candidate IDs:", candidate_ids[:5])
         
-        # Ensure valid candidate IDs using dynamic shape
         batch_size = tf.shape(candidate_ids)[0]
         unk_tensor = tf.fill([batch_size], tf.constant('[UNK]', dtype=tf.string))
         

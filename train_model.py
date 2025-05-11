@@ -177,7 +177,7 @@ def train_and_evaluate():
     
     optimizer = tf.keras.optimizers.Adam(
         learning_rate=tf.keras.optimizers.schedules.ExponentialDecay(
-            initial_learning_rate=0.001,
+            initial_learning_rate=0.0005,
             decay_steps=1000,
             decay_rate=0.9
         )

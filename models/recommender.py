@@ -2,6 +2,7 @@ import tensorflow as tf
 import tensorflow_recommenders as tfrs
 import pandas as pd
 import numpy as np
+from sklearn.utils import resample
 
 print(f"TensorFlow version: {tf.__version__}")
 print(f"TensorFlow Recommenders version: {tfrs.__version__}")
@@ -30,6 +31,19 @@ def load_and_preprocess_data():
     student_material_train = pd.read_csv('data/hoc_sinh_tai_lieu_train.csv', dtype=categorical_dtypes, encoding='utf-8')
     student_material_test = pd.read_csv('data/hoc_sinh_tai_lieu_test.csv', dtype=categorical_dtypes, encoding='utf-8')
     
+    minority_ids = student_tutor_train['ID Gia Sư'].value_counts()[student_tutor_train['ID Gia Sư'].value_counts() < 5].index
+    for id_ in minority_ids:
+        minority_df = student_tutor_train[student_tutor_train['ID Gia Sư'] == id_]
+        upsampled = resample(minority_df, replace=True, n_samples=5, random_state=42)
+        student_tutor_train = pd.concat([student_tutor_train, upsampled])
+
+    valid_goals = set(student_data['Mục tiêu học'].astype(str))
+    for df in [student_course_train, student_tutor_train, student_material_train]:
+        df['Mục tiêu học'] = df['Mục tiêu học'].apply(lambda x: str(x) if str(x) in valid_goals else 'cat_unknown')
+    valid_subjects = set(student_data['Môn học yêu thích'].astype(str))
+    for df in [student_course_train, student_tutor_train, student_material_train]:
+        df['Môn học yêu thích'] = df['Môn học yêu thích'].apply(lambda x: str(x) if str(x) in valid_subjects else 'cat_unknown')
+
     id_columns = ['ID Học Sinh', 'ID Trung Tâm', 'ID Gia Sư', 'ID Tài Liệu']
     for df in [student_data, course_data, tutor_data, material_data,
                student_course_train, student_course_test,
@@ -253,9 +267,9 @@ class StudentTower(tf.keras.Model):
         )
         
         self.dense_layers = tf.keras.Sequential([
-            tf.keras.layers.Dense(256, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.01), input_shape=(160,)),
+            tf.keras.layers.Dense(128, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.05), input_shape=(160,)),
             tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Dense(128, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.01)),
+            tf.keras.layers.Dense(64, activation="relu", kernel_regularizer=tf.keras.regularizers.l2(0.05)),
             tf.keras.layers.Dropout(0.2),
             tf.keras.layers.Dense(32)
         ])
@@ -284,7 +298,7 @@ class StudentTower(tf.keras.Model):
         tf.print("Learning method indices sample:", learning_method_indices[:5])
         
         # Get embeddings
-        school_embedding = self.school_embedding(school_indices)
+        school_embedding = tf.keras.layers.Dropout(0.3)(self.school_embedding(school_indices))
         grade_embedding = self.grade_embedding(grade_indices)
         goal_embedding = self.goal_embedding(goal_indices)
         favorite_subject_embedding = self.favorite_subject_embedding(favorite_subject_indices)

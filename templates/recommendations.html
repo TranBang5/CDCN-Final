@@ -3,135 +3,179 @@
 {% block title %}Recommendations - EduRec{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-3">
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Filters</h5>
-                <form id="filterForm">
-                    <div class="mb-3">
-                        <label for="subject" class="form-label">Subject</label>
-                        <select class="form-select" id="subject" name="subject">
-                            <option value="">All Subjects</option>
-                            <option value="Mathematics">Mathematics</option>
-                            <option value="Physics">Physics</option>
-                            <option value="Chemistry">Chemistry</option>
-                            <option value="Biology">Biology</option>
-                            <option value="Literature">Literature</option>
-                            <option value="History">History</option>
-                            <option value="Geography">Geography</option>
-                            <option value="English">English</option>
-                        </select>
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Select Recommendation Type</h5>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="recommendationType" id="all" value="all" checked>
+                        <label class="btn btn-outline-primary" for="all">
+                            <i class="fas fa-th-large"></i> All
+                        </label>
+                        <input type="radio" class="btn-check" name="recommendationType" id="courses" value="courses">
+                        <label class="btn btn-outline-primary" for="courses">
+                            <i class="fas fa-chalkboard-teacher"></i> Courses
+                        </label>
+                        <input type="radio" class="btn-check" name="recommendationType" id="tutors" value="tutors">
+                        <label class="btn btn-outline-primary" for="tutors">
+                            <i class="fas fa-user-tie"></i> Tutors
+                        </label>
+                        <input type="radio" class="btn-check" name="recommendationType" id="materials" value="materials">
+                        <label class="btn btn-outline-primary" for="materials">
+                            <i class="fas fa-book"></i> Materials
+                        </label>
                     </div>
-                    <div class="mb-3">
-                        <label for="grade" class="form-label">Grade Level</label>
-                        <select class="form-select" id="grade" name="grade">
-                            <option value="">All Grades</option>
-                            {% for grade in range(6, 13) %}
-                                <option value="Grade {{ grade }}">Grade {{ grade }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="type" class="form-label">Type</label>
-                        <select class="form-select" id="type" name="type">
-                            <option value="">All Types</option>
-                            <option value="online">Online</option>
-                            <option value="offline">Offline</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-filter"></i> Apply Filters
-                    </button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-9">
-        <div id="courses" class="mb-5">
-            <h3 class="mb-4">
-                <i class="fas fa-chalkboard-teacher"></i> Course Recommendations
-            </h3>
-            <div class="row">
-                {% for course in recommendations.courses %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100 recommendation-card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ course.center_name }}</h5>
-                                <h6 class="card-subtitle mb-2 text-muted">{{ course.subject }}</h6>
-                                <p class="card-text">
-                                    <small>
-                                        <i class="fas fa-graduation-cap"></i> {{ course.grade_level }}<br>
-                                        <i class="fas fa-clock"></i> {{ course.schedule }}<br>
-                                        <i class="fas fa-map-marker-alt"></i> {{ course.address }}<br>
-                                        <i class="fas fa-video"></i> {{ course.teaching_method }}<br>
-                                        <i class="fas fa-dollar-sign"></i> {{ course.cost }}
-                                    </small>
-                                </p>
-                                <button class="btn btn-outline-primary btn-sm add-to-plan" data-type="course" data-id="{{ course.id }}">
-                                    <i class="fas fa-plus"></i> Add to Study Plan
-                                </button>
-                            </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Filters</h5>
+                    <form id="filterForm">
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <select class="form-select" id="subject" name="subject">
+                                <option value="">All Subjects</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Biology">Biology</option>
+                                <option value="Literature">Literature</option>
+                                <option value="History">History</option>
+                                <option value="Geography">Geography</option>
+                                <option value="English">English</option>
+                            </select>
                         </div>
-                    </div>
-                {% endfor %}
+                        <div class="mb-3">
+                            <label for="grade" class="form-label">Grade Level</label>
+                            <select class="form-select" id="grade" name="grade">
+                                <option value="">All Grades</option>
+                                {% for grade in range(6, 13) %}
+                                    <option value="Grade {{ grade }}">Grade {{ grade }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="method" class="form-label">Learning Method</label>
+                            <select class="form-select" id="method" name="method">
+                                <option value="">All Methods</option>
+                                <option value="Online">Online</option>
+                                <option value="Offline">Offline</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <div id="tutors" class="mb-5">
-            <h3 class="mb-4">
-                <i class="fas fa-user-tie"></i> Tutor Recommendations
-            </h3>
-            <div class="row">
-                {% for tutor in recommendations.tutors %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100 recommendation-card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ tutor.name }}</h5>
-                                <h6 class="card-subtitle mb-2 text-muted">{{ tutor.subject }}</h6>
-                                <p class="card-text">
-                                    <small>
-                                        <i class="fas fa-graduation-cap"></i> {{ tutor.specialized_grade }}<br>
-                                        <i class="fas fa-clock"></i> {{ tutor.schedule }}<br>
-                                        <i class="fas fa-star"></i> {{ tutor.teaching_experience }} years experience<br>
-                                        <i class="fas fa-video"></i> {{ tutor.teaching_method }}
-                                    </small>
-                                </p>
-                                <button class="btn btn-outline-primary btn-sm add-to-plan" data-type="tutor" data-id="{{ tutor.id }}">
-                                    <i class="fas fa-plus"></i> Add to Study Plan
-                                </button>
-                            </div>
+        <div class="col-md-9">
+            <div id="recommendations-container">
+                {% if recommendations %}
+                    {% if recommendations.courses %}
+                    <div id="courses" class="mb-5">
+                        <h3 class="mb-4">
+                            <i class="fas fa-chalkboard-teacher"></i> Course Recommendations
+                        </h3>
+                        <div class="row">
+                            {% for course in recommendations.courses %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 recommendation-card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ course.center_name }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ course.subject }}</h6>
+                                            <p class="card-text">
+                                                <small>
+                                                    <i class="fas fa-graduation-cap"></i> {{ course.grade_level }}<br>
+                                                    <i class="fas fa-clock"></i> {{ course.schedule }}<br>
+                                                    <i class="fas fa-map-marker-alt"></i> {{ course.address }}<br>
+                                                    <i class="fas fa-video"></i> {{ course.teaching_method }}<br>
+                                                    <i class="fas fa-dollar-sign"></i> {{ course.cost }}
+                                                </small>
+                                            </p>
+                                            <button class="btn btn-outline-primary btn-sm add-to-plan" data-type="course" data-id="{{ course.id }}">
+                                                <i class="fas fa-plus"></i> Add to Study Plan
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
-                {% endfor %}
-            </div>
-        </div>
+                    {% endif %}
 
-        <div id="materials">
-            <h3 class="mb-4">
-                <i class="fas fa-book"></i> Material Recommendations
-            </h3>
-            <div class="row">
-                {% for material in recommendations.materials %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100 recommendation-card">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ material.name }}</h5>
-                                <h6 class="card-subtitle mb-2 text-muted">{{ material.subject }}</h6>
-                                <p class="card-text">
-                                    <small>
-                                        <i class="fas fa-graduation-cap"></i> {{ material.grade_level }}<br>
-                                        <i class="fas fa-file-alt"></i> {{ material.material_type }}
-                                    </small>
-                                </p>
-                                <button class="btn btn-outline-primary btn-sm add-to-plan" data-type="material" data-id="{{ material.id }}">
-                                    <i class="fas fa-plus"></i> Add to Study Plan
-                                </button>
-                            </div>
+                    {% if recommendations.tutors %}
+                    <div id="tutors" class="mb-5">
+                        <h3 class="mb-4">
+                            <i class="fas fa-user-tie"></i> Tutor Recommendations
+                        </h3>
+                        <div class="row">
+                            {% for tutor in recommendations.tutors %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 recommendation-card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ tutor.name }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ tutor.subject }}</h6>
+                                            <p class="card-text">
+                                                <small>
+                                                    <i class="fas fa-graduation-cap"></i> {{ tutor.specialized_grade }}<br>
+                                                    <i class="fas fa-clock"></i> {{ tutor.schedule }}<br>
+                                                    <i class="fas fa-star"></i> {{ tutor.teaching_experience }} years experience<br>
+                                                    <i class="fas fa-video"></i> {{ tutor.teaching_method }}
+                                                </small>
+                                            </p>
+                                            <button class="btn btn-outline-primary btn-sm add-to-plan" data-type="tutor" data-id="{{ tutor.id }}">
+                                                <i class="fas fa-plus"></i> Add to Study Plan
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
-                {% endfor %}
+                    {% endif %}
+
+                    {% if recommendations.materials %}
+                    <div id="materials">
+                        <h3 class="mb-4">
+                            <i class="fas fa-book"></i> Material Recommendations
+                        </h3>
+                        <div class="row">
+                            {% for material in recommendations.materials %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 recommendation-card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ material.name }}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">{{ material.subject }}</h6>
+                                            <p class="card-text">
+                                                <small>
+                                                    <i class="fas fa-graduation-cap"></i> {{ material.grade_level }}<br>
+                                                    <i class="fas fa-file-alt"></i> {{ material.material_type }}
+                                                </small>
+                                            </p>
+                                            <button class="btn btn-outline-primary btn-sm add-to-plan" data-type="material" data-id="{{ material.id }}">
+                                                <i class="fas fa-plus"></i> Add to Study Plan
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No recommendations available. Please complete your profile to get personalized recommendations.
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -140,19 +184,74 @@
 
 {% block scripts %}
 <script>
-    $(document).ready(function() {
-        // Handle filter form submission
-        $('#filterForm').on('submit', function(e) {
-            e.preventDefault();
-            // Add AJAX call to update recommendations
-        });
+$(document).ready(function() {
+    // Handle recommendation type selection
+    $('input[name="recommendationType"]').change(function() {
+        const type = $(this).val();
+        if (type === 'all') {
+            $('#courses, #tutors, #materials').show();
+        } else {
+            $('#courses, #tutors, #materials').hide();
+            $(`#${type}`).show();
+        }
+    });
 
+    // Handle filter form submission
+    $('#filterForm').on('submit', function(e) {
+        e.preventDefault();
+        const filters = {
+            subject: $('#subject').val(),
+            grade: $('#grade').val(),
+            method: $('#method').val()
+        };
+        
+        // Add AJAX call to update recommendations
+        $.ajax({
+            url: '/recommendations',
+            method: 'POST',
+            data: filters,
+            success: function(response) {
+                $('#recommendations-container').html(response);
+                // Reattach event handlers after content update
+                attachEventHandlers();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error applying filters:', error);
+                alert('Error applying filters. Please try again.');
+            }
+        });
+    });
+
+    function attachEventHandlers() {
         // Handle adding items to study plan
         $('.add-to-plan').on('click', function() {
             const type = $(this).data('type');
             const id = $(this).data('id');
-            // Add AJAX call to add item to study plan
+            
+            $.ajax({
+                url: '/study_plan/add',
+                method: 'POST',
+                data: {
+                    type: type,
+                    id: id
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Added to study plan successfully!');
+                    } else {
+                        alert('Error adding to study plan: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error adding to study plan:', error);
+                    alert('Error adding to study plan. Please try again.');
+                }
+            });
         });
-    });
+    }
+
+    // Initial attachment of event handlers
+    attachEventHandlers();
+});
 </script>
 {% endblock %} 

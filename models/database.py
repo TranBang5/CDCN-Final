@@ -6,19 +6,26 @@ db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    full_name = db.Column(db.String(100), nullable=False)
     password_hash = db.Column(db.String(128))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Student profile
-    school = db.Column(db.String(100))
-    current_grade = db.Column(db.String(20))
-    favorite_subjects = db.Column(db.String(200))
-    learning_goals = db.Column(db.Text)
+    school = db.Column(db.String(200))
+    current_grade = db.Column(db.String(50))
+    favorite_subjects = db.Column(db.String(500))
+    learning_goals = db.Column(db.String(200))
+    preferred_learning_method = db.Column(db.String(200))
     
     # Relationships
-    study_plans = db.relationship('StudyPlan', backref='student', lazy=True)
+    study_plan = db.relationship('StudyPlan', backref='user', uselist=False, cascade='all, delete-orphan')
+
+    def get_id(self):
+        return str(self.id)
+
+    def __repr__(self):
+        return f'<User {self.email}>'
 
 class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -57,14 +64,14 @@ class Material(db.Model):
 
 class StudyPlan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    description = db.Column(db.Text)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    courses = db.relationship('StudyPlanCourse', backref='study_plan', lazy=True)
-    tutors = db.relationship('StudyPlanTutor', backref='study_plan', lazy=True)
-    materials = db.relationship('StudyPlanMaterial', backref='study_plan', lazy=True)
+    selected_courses = db.relationship('SelectedCourse', backref='study_plan', lazy=True, cascade='all, delete-orphan')
+    selected_tutors = db.relationship('SelectedTutor', backref='study_plan', lazy=True, cascade='all, delete-orphan')
+    selected_materials = db.relationship('SelectedMaterial', backref='study_plan', lazy=True, cascade='all, delete-orphan')
 
 class StudyPlanCourse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -79,4 +86,31 @@ class StudyPlanTutor(db.Model):
 class StudyPlanMaterial(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     study_plan_id = db.Column(db.Integer, db.ForeignKey('study_plan.id'), nullable=False)
-    material_id = db.Column(db.Integer, db.ForeignKey('material.id'), nullable=False) 
+    material_id = db.Column(db.Integer, db.ForeignKey('material.id'), nullable=False)
+
+class SelectedCourse(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    study_plan_id = db.Column(db.Integer, db.ForeignKey('study_plan.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+    time_slot = db.Column(db.String(50), nullable=False)  # Format: "7h45-10h10 thứ 3"
+    
+    # Relationship
+    course = db.relationship('Course', backref='selected_courses')
+
+class SelectedTutor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    study_plan_id = db.Column(db.Integer, db.ForeignKey('study_plan.id'), nullable=False)
+    tutor_id = db.Column(db.Integer, db.ForeignKey('tutor.id'), nullable=False)
+    selected_time_slot = db.Column(db.String(50), nullable=False)  # Format: "18h thứ ba"
+    
+    # Relationship
+    tutor = db.relationship('Tutor', backref='selected_tutors')
+
+class SelectedMaterial(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    study_plan_id = db.Column(db.Integer, db.ForeignKey('study_plan.id'), nullable=False)
+    material_id = db.Column(db.Integer, db.ForeignKey('material.id'), nullable=False)
+    time_slots = db.Column(db.Text, nullable=False)  # JSON string of time slots
+    
+    # Relationship
+    material = db.relationship('Material', backref='selected_materials') 

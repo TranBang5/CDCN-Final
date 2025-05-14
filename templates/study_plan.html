@@ -3,136 +3,259 @@
 {% block title %}Create Study Plan - EduRec{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-body">
-                <h2 class="card-title text-center mb-4">Create Study Plan</h2>
-                <form method="POST">
-                    <div class="mb-4">
-                        <label for="description" class="form-label">Plan Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" required
-                            placeholder="Describe your learning goals and preferences..."></textarea>
-                    </div>
-
-                    <div class="mb-4">
-                        <h5 class="mb-3">
-                            <i class="fas fa-chalkboard-teacher"></i> Selected Courses
-                        </h5>
-                        <div id="selectedCourses" class="list-group mb-3">
-                            <!-- Selected courses will be added here dynamically -->
+<div class="container mt-4">
+    <h2>Study Plan</h2>
+    
+    <!-- Schedule View -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Weekly Schedule</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Monday</th>
+                            <th>Tuesday</th>
+                            <th>Wednesday</th>
+                            <th>Thursday</th>
+                            <th>Friday</th>
+                            <th>Saturday</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hour in range(7, 22) %}
+                        <tr>
+                            <td>{{ hour }}h</td>
+                            {% for day in range(2, 8) %}
+                            <td>
+                                {% for item in sorted_items %}
+                                    {% if item.day == day|string and item.start <= hour and item.end > hour %}
+                                        <div class="schedule-item {{ item.type }}">
+                                            {% if item.type == 'course' %}
+                                                <strong>Course:</strong> {{ item.item.course.name }}<br>
+                                                <small>{{ item.item.time_slot }}</small>
+                                            {% elif item.type == 'tutor' %}
+                                                <strong>Tutor:</strong> {{ item.item.tutor.name }}<br>
+                                                <small>{{ item.item.selected_time_slot }}</small>
+                                            {% else %}
+                                                <strong>Material:</strong> {{ item.item.material.title }}<br>
+                                                <small>{{ item.start }}h-{{ item.end }}h</small>
+                                            {% endif %}
+                                            <form method="POST" class="mt-2">
+                                                <input type="hidden" name="action" value="remove_item">
+                                                <input type="hidden" name="item_type" value="{{ item.type }}">
+                                                <input type="hidden" name="item_id" value="{{ item.item.id }}">
+                                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Items Section -->
+    <div class="row">
+        <!-- Add Course -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Add Course</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <input type="hidden" name="action" value="add_course">
+                        <div class="mb-3">
+                            <label for="course_id" class="form-label">Select Course</label>
+                            <select class="form-select" id="course_id" name="course_id" required>
+                                <option value="">Choose a course...</option>
+                                {% for course in courses %}
+                                <option value="{{ course.id }}">{{ course.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <a href="{{ url_for('recommendations') }}#courses" class="btn btn-outline-primary">
-                            <i class="fas fa-plus"></i> Add Courses
-                        </a>
-                    </div>
-
-                    <div class="mb-4">
-                        <h5 class="mb-3">
-                            <i class="fas fa-user-tie"></i> Selected Tutors
-                        </h5>
-                        <div id="selectedTutors" class="list-group mb-3">
-                            <!-- Selected tutors will be added here dynamically -->
+                        <div class="mb-3">
+                            <label for="time_slot" class="form-label">Time Slot</label>
+                            <input type="text" class="form-control" id="time_slot" name="time_slot" 
+                                   placeholder="e.g., 7h45-10h10 thứ 3" required>
                         </div>
-                        <a href="{{ url_for('recommendations') }}#tutors" class="btn btn-outline-primary">
-                            <i class="fas fa-plus"></i> Add Tutors
-                        </a>
-                    </div>
-
-                    <div class="mb-4">
-                        <h5 class="mb-3">
-                            <i class="fas fa-book"></i> Selected Materials
-                        </h5>
-                        <div id="selectedMaterials" class="list-group mb-3">
-                            <!-- Selected materials will be added here dynamically -->
+                        <button type="submit" class="btn btn-primary">Add Course</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Tutor -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Add Tutor</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <input type="hidden" name="action" value="add_tutor">
+                        <div class="mb-3">
+                            <label for="tutor_id" class="form-label">Select Tutor</label>
+                            <select class="form-select" id="tutor_id" name="tutor_id" required>
+                                <option value="">Choose a tutor...</option>
+                                {% for tutor in tutors %}
+                                <option value="{{ tutor.id }}">{{ tutor.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <a href="{{ url_for('recommendations') }}#materials" class="btn btn-outline-primary">
-                            <i class="fas fa-plus"></i> Add Materials
-                        </a>
-                    </div>
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Create Study Plan
-                        </button>
-                    </div>
-                </form>
+                        <div class="mb-3">
+                            <label for="selected_time_slot" class="form-label">Select Time Slot</label>
+                            <select class="form-select" id="selected_time_slot" name="selected_time_slot" required>
+                                <option value="">Choose a time slot...</option>
+                                {% for tutor in tutors %}
+                                    {% if tutor.id == selected_tutor_id %}
+                                        {% for slot in tutor.available_time_slots.split() %}
+                                        <option value="{{ slot }}">{{ slot }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Tutor</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Material -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Add Material</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <input type="hidden" name="action" value="add_material">
+                        <div class="mb-3">
+                            <label for="material_id" class="form-label">Select Material</label>
+                            <select class="form-select" id="material_id" name="material_id" required>
+                                <option value="">Choose a material...</option>
+                                {% for material in materials %}
+                                <option value="{{ material.id }}">{{ material.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="time_slots" class="form-label">Time Slots</label>
+                            <div id="time_slots_container">
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control time-slot" 
+                                           placeholder="e.g., 7h-9h thứ 3">
+                                    <button type="button" class="btn btn-outline-danger remove-slot">×</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="add_time_slot">
+                                Add Time Slot
+                            </button>
+                            <input type="hidden" name="time_slots" id="time_slots_input">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Material</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
+<style>
+.schedule-item {
+    padding: 5px;
+    margin: 2px 0;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+.schedule-item.course {
+    background-color: #e3f2fd;
+    border: 1px solid #90caf9;
+}
+.schedule-item.tutor {
+    background-color: #f3e5f5;
+    border: 1px solid #ce93d8;
+}
+.schedule-item.material {
+    background-color: #e8f5e9;
+    border: 1px solid #a5d6a7;
+}
+</style>
+
 <script>
-    $(document).ready(function() {
-        // Load selected items from session storage
-        function loadSelectedItems() {
-            const courses = JSON.parse(sessionStorage.getItem('selectedCourses') || '[]');
-            const tutors = JSON.parse(sessionStorage.getItem('selectedTutors') || '[]');
-            const materials = JSON.parse(sessionStorage.getItem('selectedMaterials') || '[]');
-
-            // Populate selected courses
-            $('#selectedCourses').empty();
-            courses.forEach(course => {
-                $('#selectedCourses').append(`
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">${course.center_name}</h6>
-                            <small class="text-muted">${course.subject} - ${course.grade_level}</small>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" data-type="course" data-id="${course.id}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `);
-            });
-
-            // Populate selected tutors
-            $('#selectedTutors').empty();
-            tutors.forEach(tutor => {
-                $('#selectedTutors').append(`
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">${tutor.name}</h6>
-                            <small class="text-muted">${tutor.subject} - ${tutor.specialized_grade}</small>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" data-type="tutor" data-id="${tutor.id}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `);
-            });
-
-            // Populate selected materials
-            $('#selectedMaterials').empty();
-            materials.forEach(material => {
-                $('#selectedMaterials').append(`
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">${material.name}</h6>
-                            <small class="text-muted">${material.subject} - ${material.grade_level}</small>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" data-type="material" data-id="${material.id}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `);
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle tutor time slot selection
+    const tutorSelect = document.getElementById('tutor_id');
+    const timeSlotSelect = document.getElementById('selected_time_slot');
+    
+    tutorSelect.addEventListener('change', function() {
+        const tutorId = this.value;
+        if (tutorId) {
+            // Fetch available time slots for selected tutor
+            fetch(`/api/tutor/${tutorId}/time-slots`)
+                .then(response => response.json())
+                .then(data => {
+                    timeSlotSelect.innerHTML = '<option value="">Choose a time slot...</option>';
+                    data.time_slots.forEach(slot => {
+                        const option = document.createElement('option');
+                        option.value = slot;
+                        option.textContent = slot;
+                        timeSlotSelect.appendChild(option);
+                    });
+                });
         }
-
-        // Handle removing items
-        $(document).on('click', '.remove-item', function() {
-            const type = $(this).data('type');
-            const id = $(this).data('id');
-            const items = JSON.parse(sessionStorage.getItem(`selected${type.charAt(0).toUpperCase() + type.slice(1)}s`) || '[]');
-            const updatedItems = items.filter(item => item.id !== id);
-            sessionStorage.setItem(`selected${type.charAt(0).toUpperCase() + type.slice(1)}s`, JSON.stringify(updatedItems));
-            loadSelectedItems();
-        });
-
-        // Load selected items on page load
-        loadSelectedItems();
     });
+    
+    // Handle material time slots
+    const timeSlotsContainer = document.getElementById('time_slots_container');
+    const addTimeSlotBtn = document.getElementById('add_time_slot');
+    const timeSlotsInput = document.getElementById('time_slots_input');
+    
+    function updateTimeSlotsInput() {
+        const slots = Array.from(document.querySelectorAll('.time-slot'))
+            .map(input => input.value)
+            .filter(value => value.trim() !== '');
+        timeSlotsInput.value = JSON.stringify(slots);
+    }
+    
+    addTimeSlotBtn.addEventListener('click', function() {
+        const div = document.createElement('div');
+        div.className = 'input-group mb-2';
+        div.innerHTML = `
+            <input type="text" class="form-control time-slot" placeholder="e.g., 7h-9h thứ 3">
+            <button type="button" class="btn btn-outline-danger remove-slot">×</button>
+        `;
+        timeSlotsContainer.appendChild(div);
+        
+        div.querySelector('.remove-slot').addEventListener('click', function() {
+            div.remove();
+            updateTimeSlotsInput();
+        });
+        
+        div.querySelector('.time-slot').addEventListener('input', updateTimeSlotsInput);
+    });
+    
+    // Initial time slot input event listeners
+    document.querySelectorAll('.time-slot').forEach(input => {
+        input.addEventListener('input', updateTimeSlotsInput);
+    });
+    
+    document.querySelectorAll('.remove-slot').forEach(button => {
+        button.addEventListener('click', function() {
+            this.parentElement.remove();
+            updateTimeSlotsInput();
+        });
+    });
+});
 </script>
 {% endblock %} 

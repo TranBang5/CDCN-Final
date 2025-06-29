@@ -67,3 +67,5 @@ models/recommenders/
 
 ## 7. Liên hệ & Đóng góp
 - Nếu có vấn đề hoặc muốn đóng góp, vui lòng tạo issue hoặc pull request trên repository này. 
+
+![alt text](demo.png)

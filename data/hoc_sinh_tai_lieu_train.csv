@@ -1,0 +1,16 @@
+"ID Học Sinh","Tên","Trường học hiện tại","Khối Lớp hiện tại","Mục tiêu học","Môn học yêu thích","Phương pháp học yêu thích","ID Tài Liệu","Tên tài liệu","Môn học","Khối Lớp","Loại tài liệu","Đánh giá"
+1,"Trần Hoàng Việt Vũ","THPT Cổ Loa","Lớp 10","Thi lên cấp 3","Toán,Văn học,Vật lý","Trực tiếp",1,"Nâng cao và phát triển toán Đại số 10","Toán học","10","Giấy,Điện tử",8
+2,"Lê công tuấn dũng","Trung học cơ sở tàm xá","Lớp 8","Mở rộng kiến thức","Vật lý","Trực tiếp",7,"Bồi Dưỡng Học Sinh Giỏi Vật Lí 8","Vật lý","8","Giấy",9
+10,"Ngô Thảo Nhi","THPT Cổ Loa","Lớp 10","Thi lên cấp 3","Lịch sử,Địa lý,Sinh học","Online",15,"Hướng dẫn ôn thi Bồi dưỡng học sinh giỏi THPT Chuyên đề lịch sử","Lịch sử","10,11,12","Giấy",10
+11,"lê thùy dương","thcs tàm xá","Lớp 8","Mở rộng kiến thức","Văn học,Tiếng Anh","Online",8,"Bồi Dưỡng Học Sinh Giỏi Tiếng Anh Lớp 8 Theo Chuyên Đề","Tiếng Anh","8","Giấy",6
+12,"Nguyễn Hương Giang","THPT Cổ Loa","Lớp 11","Cải thiện học lực","Văn học,Toán,Lịch sử","Trực tiếp",16,"Bộ đề bồi dưỡng học sinh giỏi ngữ văn","Văn học","10,11,12","Giấy",7
+13,"Đào Phương Linh","THPT Vân Nội","Lớp 10","Thi lên cấp 3","Sinh học","Trực tiếp",11,"Tư duy sáng tạo bồi dưỡng HSG THPT chuyên đề SINH HỌC","Sinh học","10,11,12","Điện tử",8
+14,"Tăng Thùy Minh","THPT Nguyễn Gia Thiều","Lớp 11","Thi lên đại học","Địa lý,Vật lý","Online",9,"Chuyên Đề Bồi Dưỡng Học Sinh Giỏi Vật Lí 11","Vật lý","11","Điện tử",7
+15,"Lê Bảo Ngọc","THPT CỔ LOA","Lớp 11","Mở rộng kiến thức","Toán,Hoá học,Tiếng Anh","Trực tiếp",4,"Luyện giải bộ đề bồi dưỡng học sinh giỏi tiếng anh lớp 11","Tiếng Anh","11","Giấy,Điện tử",8
+16,"Hoàng Khánh ly","Thcs tàm xa","Lớp 8","Cải thiện học lực","Văn học,Lịch sử","Trực tiếp",22,"Tuyển Tập Đề Kiểm Tra Môn Ngữ Văn 8","Văn học","8","Giấy",8
+17,"Trần Ngọc Đăng","THCS Tàm Xá","Lớp 8","Mở rộng kiến thức","Sinh học,Địa lý","Online",17,"Bồi Dưỡng Học Sinh Giỏi THCS Và Ôn Thi Vào Lớp 10 THPT Chuyên Môn Vật Lí","Vật lý","6,7,8,9","Điện tử",9
+11,"lê thùy dương","thcs tàm xá","Lớp 8","Mở rộng kiến thức","Văn học,Tiếng Anh","Online",2,"40 Đề TIẾNG ANH Thi Vào Lớp 10","Tiếng Anh","9","Điện tử",7
+20,"Nguyễn Quang Khải","Trung học cơ sở tàm xá","Lớp 8","Mở rộng kiến thức","Tiếng Anh,Lịch sử","Trực tiếp",2,"40 Đề TIẾNG ANH Thi Vào Lớp 10","Tiếng Anh","9","Điện tử",8
+49,"Nguyễn Thị Ngọc Tâm","THPT Nguyễn Gia Thiều","Lớp 10","Mở rộng kiến thức","Vật lý,Địa lý,Tiếng Anh","Trực tiếp",2,"40 Đề TIẾNG ANH Thi Vào Lớp 10","Tiếng Anh","9","Điện tử",9
+55,"Nguyễn Thanh Thảo","THPT Nguyễn Gia Thiều","Lớp 10","Mở rộng kiến thức","Hoá học,Tiếng Anh","Trực tiếp",2,"40 Đề TIẾNG ANH Thi Vào Lớp 10","Tiếng Anh","9","Điện tử",7
+64,"Vũ Trung Hiếu","THPT Cổ Loa","Lớp 11","Mở rộng kiến thức","Tiếng Anh","Online",2,"40 Đề TIẾNG ANH Thi Vào Lớp 10","Tiếng Anh","9","Điện tử",8

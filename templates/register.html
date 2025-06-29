@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Register - EduRec{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Create Account</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="current_grade" class="form-label">Current Grade</label>
+                            <select class="form-select" id="current_grade" name="current_grade" required>
+                                <option value="">Select Grade</option>
+                                {% for grade in range(6, 13) %}
+                                    <option value="Lớp {{ grade }}">Lớp {{ grade }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="school" class="form-label">Current School</label>
+                            <input type="text" class="form-control" id="school" name="school" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="learning_goals" class="form-label">Learning Goals</label>
+                            <select class="form-select" id="learning_goals" name="learning_goals" required>
+                                <option value="">Select your learning goal</option>
+                                <option value="Cải thiện học lực">Cải thiện học lực</option>
+                                <option value="Mở rộng kiến thức">Mở rộng kiến thức</option>
+                                <option value="Thi lên THPT">Thi lên THPT</option>
+                                <option value="Thi lên đại học">Thi lên đại học</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Favorite Subjects</label>
+                            <div class="input-group">
+                                <select class="form-select" id="subjectSelect">
+                                    <option value="">Chọn môn học</option>
+                                    <option value="Toán">Toán</option>
+                                    <option value="Vật lý">Vật lý</option>
+                                    <option value="Hóa học">Hóa học</option>
+                                    <option value="Sinh học">Sinh học</option>
+                                    <option value="Văn học">Văn học</option>
+                                    <option value="Lịch sử">Lịch sử</option>
+                                    <option value="Địa lý">Địa lý</option>
+                                    <option value="Tiếng Anh">Tiếng Anh</option>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary" id="addSubject">Add</button>
+                            </div>
+                            <div id="selectedSubjects" class="mt-2">
+                                <!-- Selected subjects will be displayed here as tags -->
+                            </div>
+                            <input type="hidden" name="favorite_subjects" id="favorite_subjects">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Preferred Learning Methods</label>
+                            <div class="input-group">
+                                <select class="form-select" id="methodSelect">
+                                    <option value="">Chọn phương pháp học</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Trực tiếp">Trực tiếp</option>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary" id="addMethod">Add</button>
+                            </div>
+                            <div id="selectedMethods" class="mt-2">
+                                <!-- Selected methods will be displayed here as tags -->
+                            </div>
+                            <input type="hidden" name="preferred_learning_method" id="preferred_learning_method">
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const subjectSelect = document.getElementById('subjectSelect');
+    const addSubjectBtn = document.getElementById('addSubject');
+    const selectedSubjects = document.getElementById('selectedSubjects');
+    const favoriteSubjectsInput = document.getElementById('favorite_subjects');
+    const methodSelect = document.getElementById('methodSelect');
+    const addMethodBtn = document.getElementById('addMethod');
+    const selectedMethods = document.getElementById('selectedMethods');
+    const preferredMethodInput = document.getElementById('preferred_learning_method');
+    
+    let selectedSubjectsList = [];
+    let selectedMethodsList = [];
+
+    function updateHiddenInputs() {
+        favoriteSubjectsInput.value = selectedSubjectsList.join(',');
+        preferredMethodInput.value = selectedMethodsList.join(',');
+    }
+
+    function createTag(text, type) {
+        const tag = document.createElement('span');
+        tag.className = 'badge bg-primary me-2 mb-2';
+        tag.innerHTML = `
+            ${text}
+            <button type="button" class="btn-close btn-close-white ms-2" aria-label="Remove"></button>
+        `;
+        
+        tag.querySelector('.btn-close').addEventListener('click', function() {
+            tag.remove();
+            if (type === 'subject') {
+                selectedSubjectsList = selectedSubjectsList.filter(s => s !== text);
+                subjectSelect.appendChild(new Option(text, text));
+            } else {
+                selectedMethodsList = selectedMethodsList.filter(m => m !== text);
+                methodSelect.appendChild(new Option(text, text));
+            }
+            updateHiddenInputs();
+        });
+        
+        return tag;
+    }
+
+    addSubjectBtn.addEventListener('click', function() {
+        const selectedOption = subjectSelect.options[subjectSelect.selectedIndex];
+        if (selectedOption.value) {
+            selectedSubjectsList.push(selectedOption.value);
+            selectedSubjects.appendChild(createTag(selectedOption.value, 'subject'));
+            selectedOption.remove();
+            updateHiddenInputs();
+        }
+    });
+
+    addMethodBtn.addEventListener('click', function() {
+        const selectedOption = methodSelect.options[methodSelect.selectedIndex];
+        if (selectedOption.value) {
+            selectedMethodsList.push(selectedOption.value);
+            selectedMethods.appendChild(createTag(selectedOption.value, 'method'));
+            selectedOption.remove();
+            updateHiddenInputs();
+        }
+    });
+
+    // Form submission validation
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        if (selectedSubjectsList.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one favorite subject');
+        }
+        if (selectedMethodsList.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one preferred learning method');
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - EduRec{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+        <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Student Profile</h3>
+                </div>
+            <div class="card-body">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-info">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="profile-section">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4>Personal Information</h4>
+                            <div>
+                                <a href="{{ url_for('feedback') }}" class="btn btn-success me-2">
+                                    <i class="fas fa-comment-dots"></i> Gửi phản hồi
+                                </a>
+                                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                                    <i class="fas fa-edit"></i> Edit Profile
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="profile-info-card">
+                                    <h6 class="text-muted">Full Name</h6>
+                                    <p class="mb-0">{{ user.full_name }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="profile-info-card">
+                                    <h6 class="text-muted">Email</h6>
+                                    <p class="mb-0">{{ user.email }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="profile-info-card">
+                                    <h6 class="text-muted">Current School</h6>
+                                    <p class="mb-0">{{ user.school or 'Not specified' }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="profile-info-card">
+                                    <h6 class="text-muted">Current Grade</h6>
+                                    <p class="mb-0">{{ user.current_grade or 'Not specified' }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="profile-info-card">
+                                    <h6 class="text-muted">Favorite Subjects</h6>
+                                    <p class="mb-0">{{ user.favorite_subjects or 'Not specified' }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="profile-info-card">
+                                    <h6 class="text-muted">Learning Goals</h6>
+                                    <p class="mb-0">{{ user.learning_goals or 'Not specified' }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="profile-info-card">
+                                    <h6 class="text-muted">Preferred Learning Method</h6>
+                                    <p class="mb-0">{{ user.preferred_learning_method or 'Not specified' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('profile') }}">
+                    <div class="mb-3">
+                        <label for="school" class="form-label">Current School</label>
+                        <input type="text" class="form-control" id="school" name="school" value="{{ user.school or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="current_grade" class="form-label">Current Grade</label>
+                        <input type="text" class="form-control" id="current_grade" name="current_grade" value="{{ user.current_grade or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="favorite_subjects" class="form-label">Favorite Subjects</label>
+                        <input type="text" class="form-control" id="favorite_subjects" name="favorite_subjects" value="{{ user.favorite_subjects or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="learning_goals" class="form-label">Learning Goals</label>
+                        <input type="text" class="form-control" id="learning_goals" name="learning_goals" value="{{ user.learning_goals or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="preferred_learning_method" class="form-label">Preferred Learning Method</label>
+                        <select class="form-select" id="preferred_learning_method" name="preferred_learning_method">
+                            <option value="">Chọn phương pháp học</option>
+                            <option value="Online" {% if user.preferred_learning_method == 'Online' %}selected{% endif %}>Online</option>
+                            <option value="Trực tiếp" {% if user.preferred_learning_method == 'Trực tiếp' %}selected{% endif %}>Trực tiếp</option>
+                        </select>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-info-card {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.profile-info-card:hover {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.profile-info-card h6 {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.profile-info-card p {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 500;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize select2 for multiple select
+    $(document).ready(function() {
+        $('#favorite_subjects').select2({
+            placeholder: "Select your favorite subjects",
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %} 

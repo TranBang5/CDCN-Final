@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - EduRec{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Xin chào, {{ current_user.full_name }}!</h2>
+            <p class="text-muted">Đây là trang tổng quan của bạn</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-chalkboard-teacher"></i> Trung tâm
+                    </h5>
+                    <p class="card-text">
+                        <span class="h3">{{ recommendations.courses }}</span> trung tâm có sẵn
+                    </p>
+                    <a href="{{ url_for('recommendations', tab='courses') }}" class="btn btn-primary">
+                        Xem đề xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-user-tie"></i> Gia sư
+                    </h5>
+                    <p class="card-text">
+                        <span class="h3">{{ recommendations.tutors }}</span> gia sư có sẵn
+                    </p>
+                    <a href="{{ url_for('recommendations', tab='tutors') }}" class="btn btn-primary">
+                        Xem đề xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-book"></i> Tài liệu
+                    </h5>
+                    <p class="card-text">
+                        <span class="h3">{{ recommendations.materials }}</span> tài liệu có sẵn
+                    </p>
+                    <a href="{{ url_for('recommendations', tab='materials') }}" class="btn btn-primary">
+                        Xem đề xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt"></i> Kế hoạch học tập gần đây
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if study_plan_items %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Loại</th>
+                                        <th>Tên</th>
+                                        <th>Môn học</th>
+                                        <th>Khối lớp</th>
+                                        <th>Phương pháp</th>
+                                        <th>Thời gian</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in study_plan_items %}
+                                        <tr>
+                                            <td>
+                                                {% if item.item_type == 'course' %}
+                                                    <i class="fas fa-chalkboard-teacher"></i> Trung tâm
+                                                {% elif item.item_type == 'tutor' %}
+                                                    <i class="fas fa-user-tie"></i> Gia sư
+                                                {% else %}
+                                                    <i class="fas fa-book"></i> Tài liệu
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ item.name }}</td>
+                                            <td>{{ item.subject }}</td>
+                                            <td>{{ item.grade }}</td>
+                                            <td>{{ item.method or 'N/A' }}</td>
+                                            <td>{{ item.time_slots or 'Chưa có' }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Bạn chưa có kế hoạch học tập nào. Hãy xem các đề xuất và thêm vào kế hoạch của bạn!</p>
+                    {% endif %}
+                    <a href="{{ url_for('study_plan') }}" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Quản lý kế hoạch học tập
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

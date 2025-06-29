@@ -1,0 +1,51 @@
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ccnfinal
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  web:
+    build: .
+    container_name: web
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - ./checkpoints:/app/checkpoints
+      - ./bruteforce_data.npz:/app/bruteforce_data.npz
+      - ./subject_pca_model.pkl:/app/subject_pca_model.pkl
+      - ./grade_pca_model.pkl:/app/grade_pca_model.pkl
+    depends_on:
+      - db
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=ccnfinal
+      - DATABASE_URL=mysql+mysqlconnector://user:password@mysql:3306/ccnfinal
+      - WEIGHTS_DIR=/app/checkpoints
+      - BRUTEFORCE_DATA_PATH=/app/bruteforce_data.npz
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge

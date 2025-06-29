@@ -1,0 +1,16 @@
+"ID Học Sinh","Tên","Trường học hiện tại","Khối Lớp hiện tại","Mục tiêu học","Môn học yêu thích","Phương pháp học yêu thích","ID Trung Tâm","Tên Trung Tâm","Môn học","Khối Lớp","Phương pháp học","Thời gian","Chi phí","Địa chỉ","Đánh giá"
+1,"Trần Hoàng Việt Vũ","THPT Cổ Loa","Lớp 10","Thi lên cấp 3","Toán,Văn,Vật lý","Trực tiếp",1,"Tiến Bạc","Toán học","10","Trực tiếp","7h45 - 10h10 thứ 3","60.000 VNĐ/Ca","Đông Anh, Hà Nội",9
+2,"Lê công tuấn dũng","Trung học cơ sở tàm xá","Lớp 8","Mở rộng kiến thức","Vật lý","Trực tiếp",33,"Khoa Bảng","Toán học","8","Online","18h - 19h30 thứ 5","200.000 VNĐ/Ca","Online",7
+3,"Phạm Quỳnh Trang","Thpt cổ loa","Lớp 11","Mở rộng kiến thức","Hoá học","Trực tiếp",10,"Tiến Bạc","Hoá học","11","Trực tiếp","18h - 20h25 thứ 3","60.000 VNĐ/Ca","Đông Anh, Hà Nội",9
+4,"Nguyễn Phương Thảo","Trường THPT Cổ Loa","Lớp 12","Thi lên đại học","Vật lý,Tiếng Anh","Online",22,"Tiến Bạc","Vật lý","12","Trực tiếp","7h45 - 10h10 thứ 4","60.000 VNĐ/Ca","Đông Anh, Hà Nội",9
+5,"Nguyễn Hà Linh","Thpt Cổ Loa","Lớp 11","Cải thiện học lực","Văn,Toán,Vật lý","Trực tiếp",9,"Tiến Bạc","Toán học","11","Trực tiếp","14h15 - 16h40 thứ 6","60.000 VNĐ/Ca","Đông Anh, Hà Nội",9
+6,"Lê Khánh Ly","THPT Cổ Loa","Lớp 10","Thi lên đại học","Hoá học,Vật lý","Trực tiếp",2,"Tiến Bạc","Hoá học","10","Trực tiếp","18h - 20h25 thứ 4","60.000 VNĐ/Ca","Đông Anh, Hà Nội",9
+7,"Nguyễn Vân Thư","THPT Cổ Loa","Lớp 12","Thi lên đại học","Toán học","Trực tiếp",17,"Tiến Bạc","Toán học","12","Trực tiếp","14h15 - 16h40 thứ 6","60.000 VNĐ/Ca","Đông Anh, Hà Nội",9
+8,"Nguyễn Phương Thảo","THPT Cổ Loa","Lớp 12","Thi lên đại học","Toán học","Trực tiếp",17,"Tiến Bạc","Toán học","12","Trực tiếp","14h15 - 16h40 thứ 6","60.000 VNĐ/Ca","Đông Anh, Hà Nội",9
+9,"Nguyễn Anh Tuấn","THPT Cổ Loa","Lớp 11","Mở rộng kiến thức","Vật lý,Hoá học","Online",57,"Khai Tâm","Vật lý","11","Trực tiếp","19h45 - 21h15 thứ 3","200.000 VNĐ/Ca","Hoài Đức, Hà Nội",8
+10,"Ngô Thảo Nhi","THPT Cổ Loa","Lớp 10","Cải thiện học lực","Lịch sử,Địa lý,Sinh học","Online",8,"Tiến Bạc","Địa lý","10","Trực tiếp","7h45 - 10h10 thứ 6","60.000 VNĐ/Ca","Đông Anh, Hà Nội",8
+1,"Trần Hoàng Việt Vũ","THPT Cổ Loa","Lớp 10","Thi lên cấp 3","Toán,Văn,Vật lý","Trực tiếp",3,"Tiến Bạc","Tiếng Anh","10","Trực tiếp","14h15 - 16h40 chủ nhật","60.000 VNĐ/Ca","Đông Anh, Hà Nội",8
+49,"Nguyễn Thị Ngọc Tâm","THPT Nguyễn Gia Thiều","Lớp 10","Mở rộng kiến thức","Vật lý,Địa lý,Tiếng Anh","Trực tiếp",3,"Tiến Bạc","Tiếng Anh","10","Trực tiếp","14h15 - 16h40 chủ nhật","60.000 VNĐ/Ca","Đông Anh, Hà Nội",7
+55,"Nguyễn Thanh Thảo","THPT Nguyễn Gia Thiều","Lớp 10","Mở rộng kiến thức","Hoá học,Tiếng Anh","Trực tiếp",3,"Tiến Bạc","Tiếng Anh","10","Trực tiếp","14h15 - 16h40 chủ nhật","60.000 VNĐ/Ca","Đông Anh, Hà Nội",9
+60,"Nguyễn Như Quỳnh","THPT Nguyễn Gia Thiều","Lớp 10","Mở rộng kiến thức","Vật lý,Toán","Trực tiếp",3,"Tiến Bạc","Tiếng Anh","10","Trực tiếp","14h15 - 16h40 chủ nhật","60.000 VNĐ/Ca","Đông Anh, Hà Nội",8
+64,"Vũ Trung Hiếu","THPT Cổ Loa","Lớp 11","Mở rộng kiến thức","Tiếng Anh","Online",3,"Tiến Bạc","Tiếng Anh","10","Trực tiếp","14h15 - 16h40 chủ nhật","60.000 VNĐ/Ca","Đông Anh, Hà Nội",7

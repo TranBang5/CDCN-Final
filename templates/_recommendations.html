@@ -1,0 +1,192 @@
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4" id="recommendationTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'courses' %}active{% endif %}" 
+                id="courses-tab" 
+                data-bs-toggle="tab" 
+                data-bs-target="#courses" 
+                type="button" 
+                role="tab" 
+                aria-controls="courses" 
+                aria-selected="{% if active_tab == 'courses' %}true{% else %}false{% endif %}">
+            Trung tâm
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'tutors' %}active{% endif %}" 
+                id="tutors-tab" 
+                data-bs-toggle="tab" 
+                data-bs-target="#tutors" 
+                type="button" 
+                role="tab" 
+                aria-controls="tutors" 
+                aria-selected="{% if active_tab == 'tutors' %}true{% else %}false{% endif %}">
+            Gia sư
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if active_tab == 'materials' %}active{% endif %}" 
+                id="materials-tab" 
+                data-bs-toggle="tab" 
+                data-bs-target="#materials" 
+                type="button" 
+                role="tab" 
+                aria-controls="materials" 
+                aria-selected="{% if active_tab == 'materials' %}true{% else %}false{% endif %}">
+            Tài liệu
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="recommendationTabsContent">
+    <!-- Courses Tab -->
+    <div class="tab-pane fade {% if active_tab == 'courses' %}show active{% endif %}" 
+         id="courses" 
+         role="tabpanel" 
+         aria-labelledby="courses-tab">
+        <div class="row">
+            {% for course in recommendations.courses %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ course.name }}</h5>
+                        <p class="card-text">
+                            <strong>Môn học:</strong> {{ course.subject }}{% if course.subject_match %} <span class="badge bg-success">Môn yêu thích</span>{% endif %}<br>
+                            <strong>Khối lớp:</strong> {{ course.grade_level }}{% if course.grade_match %} <span class="badge bg-success">Khối lớp phù hợp</span>{% endif %}<br>
+                            <strong>Phương pháp:</strong> {{ course.teaching_method }}<br>
+                            <strong>Thời gian:</strong> {{ course.teaching_time }}<br>
+                            <strong>Địa điểm:</strong> {{ course.location }}<br>
+                            <strong>Học phí:</strong> {{ "{:,.0f}".format(course.cost) }} VNĐ/Ca
+                        </p>
+                        {% if course.in_plan %}
+                        <button class="btn btn-secondary" disabled>
+                            <i class="fas fa-check"></i> Đã thêm vào kế hoạch
+                        </button>
+                        {% else %}
+                        <button class="btn btn-primary add-to-study-plan" 
+                                data-type="course"
+                                data-id="{{ course.id }}"
+                                data-name="{{ course.name }}"
+                                data-subject="{{ course.subject }}"
+                                data-grade="{{ course.grade_level }}"
+                                data-method="{{ course.teaching_method }}"
+                                data-schedule="{{ course.teaching_time }}">
+                            Thêm vào kế hoạch học tập
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Không tìm thấy trung tâm nào phù hợp với tiêu chí tìm kiếm.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Tutors Tab -->
+    <div class="tab-pane fade {% if active_tab == 'tutors' %}show active{% endif %}" 
+         id="tutors" 
+         role="tabpanel" 
+         aria-labelledby="tutors-tab">
+        <div class="row">
+            {% for tutor in recommendations.tutors %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ tutor.name }}</h5>
+                        <p class="card-text">
+                            <strong>Môn học:</strong> {{ tutor.subject }}{% if tutor.subject_match %} <span class="badge bg-success">Môn yêu thích</span>{% endif %}<br>
+                            <strong>Khối lớp:</strong> {{ tutor.specialized_grade }}{% if tutor.grade_match %} <span class="badge bg-success">Khối lớp phù hợp</span>{% endif %}<br>
+                            <strong>Phương pháp:</strong> {{ tutor.teaching_method }}<br>
+                            <strong>Thời gian dạy:</strong> {{ tutor.teaching_time }}<br>
+                            <strong>Kinh nghiệm:</strong> {{ tutor.experience|default(0)|int }} năm
+                        </p>
+                        {% if tutor.in_plan %}
+                        <button class="btn btn-secondary" disabled>
+                            <i class="fas fa-check"></i> Đã thêm vào kế hoạch
+                        </button>
+                        {% else %}
+                        <button class="btn btn-primary add-to-study-plan" 
+                                data-type="tutor"
+                                data-id="{{ tutor.id }}"
+                                data-name="{{ tutor.name }}"
+                                data-subject="{{ tutor.subject }}"
+                                data-grade="{{ tutor.specialized_grade }}"
+                                data-method="{{ tutor.teaching_method }}">
+                            Thêm vào kế hoạch học tập
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Không tìm thấy gia sư nào phù hợp với tiêu chí tìm kiếm.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Materials Tab -->
+    <div class="tab-pane fade {% if active_tab == 'materials' %}show active{% endif %}" 
+         id="materials" 
+         role="tabpanel" 
+         aria-labelledby="materials-tab">
+        <div class="row">
+            {% for material in recommendations.materials %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ material.name }}</h5>
+                        <p class="card-text">
+                            <strong>Môn học:</strong> {{ material.subject }}{% if material.subject_match %} <span class="badge bg-success">Môn yêu thích</span>{% endif %}<br>
+                            <strong>Khối lớp:</strong> {{ material.grade_level }}{% if material.grade_match %} <span class="badge bg-success">Khối lớp phù hợp</span>{% endif %}<br>
+                            <strong>Loại tài liệu:</strong> {{ material.material_type }}<br>
+                            <strong>Mô tả:</strong> {{ material.description }}
+                        </p>
+                        {% if material.in_plan %}
+                        <button class="btn btn-secondary" disabled>
+                            <i class="fas fa-check"></i> Đã thêm vào kế hoạch
+                        </button>
+                        {% else %}
+                        <button class="btn btn-primary add-to-study-plan" 
+                                data-type="material"
+                                data-id="{{ material.id }}"
+                                data-name="{{ material.name }}"
+                                data-subject="{{ material.subject }}"
+                                data-grade="{{ material.grade_level }}">
+                            Thêm vào kế hoạch học tập
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    Không tìm thấy tài liệu nào phù hợp với tiêu chí tìm kiếm.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Update active tab in URL without page reload
+document.querySelectorAll('#recommendationTabs .nav-link').forEach(tab => {
+    tab.addEventListener('shown.bs.tab', function(e) {
+        const url = new URL(window.location);
+        const tabId = e.target.id.split('-')[0]; // Extract 'courses', 'tutors', 'materials'
+        url.searchParams.set('tab', tabId);
+        window.history.pushState({}, '', url);
+    });
+});
+</script> 

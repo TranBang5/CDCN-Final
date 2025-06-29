@@ -1,0 +1,505 @@
+{% extends "base.html" %}
+
+{% block title %}Create Study Plan - EduRec{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Kế hoạch học tập</h2>
+        <a href="{{ url_for('feedback') }}" class="btn btn-success">
+            <i class="fas fa-comment-dots"></i> Gửi phản hồi
+        </a>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs mb-4" id="studyPlanTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedule" 
+                    type="button" role="tab" aria-controls="schedule" aria-selected="true">
+                <i class="fas fa-calendar-alt"></i> Thời khóa biểu
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="manage-tab" data-bs-toggle="tab" data-bs-target="#manage" 
+                    type="button" role="tab" aria-controls="manage" aria-selected="false">
+                <i class="fas fa-tasks"></i> Quản lý kế hoạch
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="studyPlanTabsContent">
+        <!-- Tab 1: Schedule View -->
+        <div class="tab-pane fade show active" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">
+            <!-- Add Items to Schedule Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Thêm vào thời khóa biểu</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Add Course -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Thêm trung tâm</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form method="POST">
+                                        <input type="hidden" name="action" value="add_course">
+                                        <div class="mb-3">
+                                            <label for="course_id" class="form-label">Chọn trung tâm</label>
+                                            <select class="form-select" id="course_id" name="course_id" required>
+                                                <option value="">Chọn trung tâm...</option>
+                                                {% for item in study_plan_items %}
+                                                    {% if item.item_type == 'course' %}
+                                                    <option value="{{ item.item_id }}" data-schedule="{{ item.time_slots }}">{{ item.name }} ({{ item.subject }})</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="time_slot" class="form-label">Thời gian</label>
+                                            <input type="text" class="form-control" id="time_slot" name="time_slot" 
+                                                placeholder="VD: 7h45-10h10 thứ 3" readonly required>
+                                            <small class="form-text text-muted">Trung tâm có lịch cố định</small>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Thêm vào thời khóa biểu</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Tutor -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Thêm gia sư</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form method="POST">
+                                        <input type="hidden" name="action" value="add_tutor">
+                                        <div class="mb-3">
+                                            <label for="tutor_id" class="form-label">Chọn gia sư</label>
+                                            <select class="form-select" id="tutor_id" name="tutor_id" required>
+                                                <option value="">Chọn gia sư...</option>
+                                                {% for item in study_plan_items %}
+                                                    {% if item.item_type == 'tutor' %}
+                                                    <option value="{{ item.item_id }}">{{ item.name }} ({{ item.subject }})</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="selected_time_slot" class="form-label">Chọn thời gian</label>
+                                            <select class="form-select" id="selected_time_slot" name="selected_time_slot" required>
+                                                <option value="">Chọn thời gian...</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Thêm vào thời khóa biểu</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Material -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Thêm tài liệu</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form method="POST">
+                                        <input type="hidden" name="action" value="add_material">
+                                        <div class="mb-3">
+                                            <label for="material_id" class="form-label">Chọn tài liệu</label>
+                                            <select class="form-select" id="material_id" name="material_id" required>
+                                                <option value="">Chọn tài liệu...</option>
+                                                {% for item in study_plan_items %}
+                                                    {% if item.item_type == 'material' %}
+                                                    <option value="{{ item.item_id }}">{{ item.name }} ({{ item.subject }})</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="time_slots" class="form-label">Thời gian</label>
+                                            <div id="time_slots_container">
+                                                <div class="input-group mb-2">
+                                                    <input type="text" class="form-control time-slot" 
+                                                        placeholder="VD: 7h-9h thứ 3">
+                                                    <button type="button" class="btn btn-outline-danger remove-slot">×</button>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-outline-primary btn-sm" id="add_time_slot">
+                                                Thêm thời gian
+                                            </button>
+                                            <input type="hidden" name="time_slots" id="time_slots_input">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Thêm vào thời khóa biểu</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weekly Schedule -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-calendar-week"></i> Thời khóa biểu theo tuần</h4>
+                </div>
+                <div class="card-body p-0">
+                    {% if sorted_items %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered timetable mb-0">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Thứ Hai</th>
+                                        <th>Thứ Ba</th>
+                                        <th>Thứ Tư</th>
+                                        <th>Thứ Năm</th>
+                                        <th>Thứ Sáu</th>
+                                        <th>Thứ Bảy</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        {% for day_num in range(2, 8) %}
+                                            <td class="align-top day-column" style="min-height: 400px; height: auto;">
+                                                {% set day_items = [] %}
+                                                {% for item in sorted_items %}
+                                                    {% if item.day == day_num %}
+                                                        {% set _ = day_items.append(item) %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                
+                                                {% for item in day_items|sort(attribute='start') %}
+                                                    <div class="card mb-2 schedule-item {{ item.type }}">
+                                                        <div class="card-body p-2">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <h6 class="card-title mb-1">
+                                                                    {% if item.type == 'course' %}
+                                                                        <i class="fas fa-chalkboard-teacher text-primary"></i> {{ item.item.course.name }}
+                                                                    {% elif item.type == 'tutor' %}
+                                                                        <i class="fas fa-user-tie text-info"></i> {{ item.item.tutor.name }}
+                                                                    {% else %}
+                                                                        <i class="fas fa-book text-success"></i> {{ item.item.material.name }}
+                                                                    {% endif %}
+                                                                </h6>
+                                                                <span class="badge bg-light text-dark">
+                                                                    {% if item.type == 'material' %}
+                                                                        {% set start_hour = item.start//60 %}
+                                                                        {% set start_min = item.start%60 %}
+                                                                        {% set end_hour = item.end//60 %}
+                                                                        {% set end_min = item.end%60 %}
+                                                                        {{ '%02d' % start_hour }}:{{ '%02d' % start_min if start_min > 0 else '00' }} - {{ '%02d' % end_hour }}:{{ '%02d' % end_min if end_min > 0 else '00' }}
+                                                                    {% elif item.type == 'course' %}
+                                                                        {{ item.item.time_slot|replace('thứ ' ~ item.day, '')|replace('thứ ' ~ item.day_name, '') }}
+                                                                    {% elif item.type == 'tutor' %}
+                                                                        {{ item.item.selected_time_slot|replace('thứ ' ~ item.day, '')|replace('thứ ' ~ item.day_name, '') }}
+                                                                    {% endif %}
+                                                                </span>
+                                                            </div>
+                                                            <p class="card-text mb-1">
+                                                                <small>
+                                                                    {% if item.type == 'course' %}
+                                                                        <span class="text-primary">{{ item.item.course.subject }}</span> - {{ item.item.course.location }}
+                                                                    {% elif item.type == 'tutor' %}
+                                                                        <span class="text-info">{{ item.item.tutor.subject }}</span> - {{ item.item.tutor.teaching_method }}
+                                                                    {% else %}
+                                                                        <span class="text-success">{{ item.item.material.subject }}</span> - {{ item.item.material.material_type }}
+                                                                    {% endif %}
+                                                                </small>
+                                                            </p>
+                                                            <form method="POST">
+                                                                <input type="hidden" name="action" value="remove_item">
+                                                                <input type="hidden" name="item_type" value="{{ item.type }}">
+                                                                <input type="hidden" name="item_id" value="{{ item.item.id }}">
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                                    <i class="fas fa-trash-alt"></i> Xóa
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="text-center text-muted py-3">
+                                                        <i class="fas fa-calendar-day fa-2x mb-2"></i><br>
+                                                        Không có lịch học
+                                                    </div>
+                                                {% endfor %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p>Chưa có lịch học nào được thêm vào thời khóa biểu.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab 2: Manage Study Plan -->
+        <div class="tab-pane fade" id="manage" role="tabpanel" aria-labelledby="manage-tab">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Danh sách kế hoạch học tập</h4>
+                </div>
+                <div class="card-body">
+                    {% if study_plan_items %}
+                        {% if time_conflicts %}
+                        <div class="alert alert-danger mb-4">
+                            <h5 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Cảnh báo xung đột thời gian!</h5>
+                            <p>Có những mục học trùng thời gian với nhau. Vui lòng điều chỉnh lịch học để tránh xung đột.</p>
+                            <hr>
+                            <ul class="mb-0">
+                                {% for conflict in time_conflicts %}
+                                <li>
+                                    <strong>{{ conflict.day_name }}:</strong> 
+                                    {% if conflict.item1.type == 'course' %}
+                                        <span class="badge bg-primary">{{ conflict.item1.item.course.name }}</span>
+                                    {% elif conflict.item1.type == 'tutor' %}
+                                        <span class="badge bg-info">{{ conflict.item1.item.tutor.name }}</span>
+                                    {% else %}
+                                        <span class="badge bg-success">{{ conflict.item1.item.material.name }}</span>
+                                    {% endif %}
+                                    và
+                                    {% if conflict.item2.type == 'course' %}
+                                        <span class="badge bg-primary">{{ conflict.item2.item.course.name }}</span>
+                                    {% elif conflict.item2.type == 'tutor' %}
+                                        <span class="badge bg-info">{{ conflict.item2.item.tutor.name }}</span>
+                                    {% else %}
+                                        <span class="badge bg-success">{{ conflict.item2.item.material.name }}</span>
+                                    {% endif %}
+                                    
+                                    ({{ conflict.time }})
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Loại</th>
+                                        <th>Tên</th>
+                                        <th>Môn học</th>
+                                        <th>Khối lớp</th>
+                                        <th>Phương pháp</th>
+                                        <th>Thời gian học</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in study_plan_items %}
+                                        <tr {% if item.has_conflict %}class="table-danger"{% endif %}>
+                                            <td>
+                                                {% if item.item_type == 'course' %}
+                                                    <span class="badge bg-primary"><i class="fas fa-chalkboard-teacher"></i> Trung tâm</span>
+                                                {% elif item.item_type == 'tutor' %}
+                                                    <span class="badge bg-info"><i class="fas fa-user-tie"></i> Gia sư</span>
+                                                {% else %}
+                                                    <span class="badge bg-success"><i class="fas fa-book"></i> Tài liệu</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ item.name }}</td>
+                                            <td>{{ item.subject }}</td>
+                                            <td>{{ item.grade }}</td>
+                                            <td>{{ item.method or 'N/A' }}</td>
+                                            <td>
+                                                {% if item.has_conflict %}
+                                                <span class="text-danger fw-bold">
+                                                    <i class="fas fa-exclamation-triangle"></i> {{ item.time_slots or 'Chưa xếp lịch' }}
+                                                </span>
+                                                {% else %}
+                                                {{ item.time_slots or 'Chưa xếp lịch' }}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <form method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="remove_study_plan_item">
+                                                    <input type="hidden" name="study_plan_item_id" value="{{ item.id }}">
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash"></i> Xóa
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p>Bạn chưa có kế hoạch học tập nào. Hãy xem các đề xuất và thêm vào kế hoạch của bạn!</p>
+                            <a href="{{ url_for('recommendations') }}" class="btn btn-primary">
+                                <i class="fas fa-lightbulb"></i> Xem đề xuất
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.schedule-item {
+    padding: 5px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+.schedule-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+.schedule-item.course {
+    background-color: #e3f2fd;
+    border-left: 4px solid #1e88e5;
+}
+.schedule-item.tutor {
+    background-color: #f3e5f5;
+    border-left: 4px solid #8e24aa;
+}
+.schedule-item.material {
+    background-color: #e8f5e9;
+    border-left: 4px solid #43a047;
+}
+
+.timetable {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.timetable th {
+    text-align: center;
+    font-weight: 500;
+    padding: 12px;
+}
+
+.day-column {
+    padding: 10px;
+    vertical-align: top;
+    width: 16.66%;
+    height: 600px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.card-body.p-0 .table {
+    margin-bottom: 0;
+}
+
+.card-body.p-0 .table td,
+.card-body.p-0 .table th {
+    padding: 0.5rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Log all course schedules for debugging
+    document.querySelectorAll('#course_id option').forEach(option => {
+        if (option.value) {
+            console.log(`Course ${option.value} (${option.textContent}): Schedule=${option.dataset.schedule}`);
+        }
+    });
+    
+    // Handle course selection to auto-fill time slot
+    const courseSelect = document.getElementById('course_id');
+    const timeSlotInput = document.getElementById('time_slot');
+    
+    if (courseSelect) {
+        courseSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.value) {
+                const schedule = selectedOption.dataset.schedule;
+                console.log("Course schedule data:", schedule);
+                if (schedule) {
+                    timeSlotInput.value = schedule;
+                } else {
+                    timeSlotInput.value = '';
+                }
+            } else {
+                timeSlotInput.value = '';
+            }
+        });
+    }
+    
+    // Handle tutor time slot selection
+    const tutorSelect = document.getElementById('tutor_id');
+    const timeSlotSelect = document.getElementById('selected_time_slot');
+    
+    tutorSelect.addEventListener('change', function() {
+        const tutorId = this.value;
+        if (tutorId) {
+            // Fetch available time slots for selected tutor
+            fetch(`/api/tutor/${tutorId}/time-slots`)
+                .then(response => response.json())
+                .then(data => {
+                    timeSlotSelect.innerHTML = '<option value="">Chọn thời gian...</option>';
+                    data.time_slots.forEach(slot => {
+                        const option = document.createElement('option');
+                        option.value = slot;
+                        option.textContent = slot;
+                        timeSlotSelect.appendChild(option);
+                    });
+                });
+        }
+    });
+    
+    // Handle material time slots
+    const timeSlotsContainer = document.getElementById('time_slots_container');
+    const addTimeSlotBtn = document.getElementById('add_time_slot');
+    const timeSlotsInput = document.getElementById('time_slots_input');
+    
+    function updateTimeSlotsInput() {
+        const slots = Array.from(document.querySelectorAll('.time-slot'))
+            .map(input => input.value)
+            .filter(value => value.trim() !== '');
+        timeSlotsInput.value = JSON.stringify(slots);
+    }
+    
+    addTimeSlotBtn.addEventListener('click', function() {
+        const div = document.createElement('div');
+        div.className = 'input-group mb-2';
+        div.innerHTML = `
+            <input type="text" class="form-control time-slot" placeholder="VD: 7h-9h thứ 3">
+            <button type="button" class="btn btn-outline-danger remove-slot">×</button>
+        `;
+        timeSlotsContainer.appendChild(div);
+        
+        div.querySelector('.remove-slot').addEventListener('click', function() {
+            div.remove();
+            updateTimeSlotsInput();
+        });
+        
+        div.querySelector('.time-slot').addEventListener('input', updateTimeSlotsInput);
+    });
+    
+    // Initial time slot input event listeners
+    document.querySelectorAll('.time-slot').forEach(input => {
+        input.addEventListener('input', updateTimeSlotsInput);
+    });
+    
+    document.querySelectorAll('.remove-slot').forEach(button => {
+        button.addEventListener('click', function() {
+            this.parentElement.remove();
+            updateTimeSlotsInput();
+        });
+    });
+    
+    // Khởi tạo giá trị ban đầu cho time_slots_input
+    updateTimeSlotsInput();
+});
+</script>
+{% endblock %} 

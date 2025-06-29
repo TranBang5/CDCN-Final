@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendations - EduRec{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Đề xuất cá nhân hóa</h1>
+    <p class="lead">Dưới đây là các đề xuất dựa trên hồ sơ và sở thích của bạn</p>
+    
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="card-title mb-0">Bộ lọc</h5>
+        </div>
+        <div class="card-body">
+            <form id="filter-form" method="GET">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="subject" class="form-label">Môn học</label>
+                        <select class="form-select" id="subject" name="subject">
+                            <option value="">Tất cả môn học</option>
+                            {% for subject in all_subjects %}
+                                <option value="{{ subject }}" {% if request.args.get('subject') == subject %}selected{% endif %}>{{ subject }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="grade" class="form-label">Khối lớp</label>
+                        <select class="form-select" id="grade" name="grade">
+                            <option value="">Tất cả khối lớp</option>
+                            {% for grade in all_grades %}
+                                <option value="{{ grade }}" {% if request.args.get('grade') == grade %}selected{% endif %}>{{ grade }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="method" class="form-label">Phương pháp</label>
+                        <select class="form-select" id="method" name="method">
+                            <option value="">Tất cả phương pháp</option>
+                            {% for method in all_methods %}
+                                <option value="{{ method }}" {% if request.args.get('method') == method %}selected{% endif %}>{{ method }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="grade_filter" class="form-label">Hiển thị</label>
+                        <select class="form-select" id="grade_filter" name="grade_filter">
+                            <option value="all" {% if request.args.get('grade_filter') == 'all' or not request.args.get('grade_filter') %}selected{% endif %}>Tất cả khối lớp</option>
+                            <option value="matching" {% if request.args.get('grade_filter') == 'matching' %}selected{% endif %}>Chỉ khối lớp phù hợp</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Áp dụng bộ lọc</button>
+                    <button type="button" id="reset-filter" class="btn btn-outline-secondary">Đặt lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recommendations Container -->
+    <div id="recommendations-container">
+        {% include '_recommendations.html' %}
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Thông báo</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle form submission with AJAX
+    const filterForm = document.getElementById('filter-form');
+    const recommendationsContainer = document.getElementById('recommendations-container');
+    
+    // Xử lý nút đặt lại filter
+    const resetFilterButton = document.getElementById('reset-filter');
+    resetFilterButton.addEventListener('click', function() {
+        // Đặt lại tất cả các trường trong form
+        filterForm.reset();
+        
+        // Lấy tab hiện tại đang active
+        const activeTab = document.querySelector('#recommendationTabs .nav-link.active');
+        const tabId = activeTab ? activeTab.id.split('-')[0] : 'courses';
+        
+        // Tạo URL mới chỉ với tab hiện tại
+        const url = new URL(window.location);
+        url.search = `?tab=${tabId}`;
+        
+        // Gửi request để lấy dữ liệu đã lọc
+        fetch(`${window.location.pathname}?tab=${tabId}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            recommendationsContainer.innerHTML = html;
+            initializeAddToStudyPlanButtons();
+            
+            // Cập nhật URL
+            window.history.pushState({}, '', url);
+        });
+    });
+    
+    filterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams(formData);
+        
+        // Lấy tab hiện tại đang active
+        const activeTab = document.querySelector('#recommendationTabs .nav-link.active');
+        const tabId = activeTab ? activeTab.id.split('-')[0] : 'courses';
+        
+        // Thêm tab hiện tại vào parameters
+        params.set('tab', tabId);
+        
+        fetch(`${window.location.pathname}?${params.toString()}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            recommendationsContainer.innerHTML = html;
+            initializeAddToStudyPlanButtons();
+            
+            // Update URL with filters without reloading the page
+            const url = new URL(window.location);
+            for (const [key, value] of formData.entries()) {
+                if (value) {
+                    url.searchParams.set(key, value);
+                } else {
+                    url.searchParams.delete(key);
+                }
+            }
+            // Giữ nguyên tab trong URL
+            url.searchParams.set('tab', tabId);
+            window.history.pushState({}, '', url);
+        });
+    });
+    
+    // Handle "Add to Study Plan" buttons
+    function initializeAddToStudyPlanButtons() {
+        const addButtons = document.querySelectorAll('.add-to-study-plan');
+        const toast = new bootstrap.Toast(document.getElementById('toast'));
+        const toastMessage = document.getElementById('toast-message');
+        
+        addButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const itemType = this.dataset.type;
+                const itemId = this.dataset.id;
+                const itemName = this.dataset.name;
+                const itemSubject = this.dataset.subject;
+                const itemGrade = this.dataset.grade;
+                const itemMethod = this.dataset.method;
+                const schedule = this.dataset.schedule || '';
+                
+                const formData = new FormData();
+                formData.append('type', itemType);
+                formData.append('id', itemId);
+                formData.append('name', itemName);
+                formData.append('subject', itemSubject);
+                formData.append('grade', itemGrade);
+                formData.append('method', itemMethod);
+                formData.append('schedule', schedule);
+                
+                fetch('/study_plan/add', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    toastMessage.textContent = data.message;
+                    toast.show();
+                    
+                    if (data.success) {
+                        // Disable the button or change its text to indicate it's added
+                        this.disabled = true;
+                        this.innerHTML = '<i class="fas fa-check"></i> Đã thêm vào kế hoạch';
+                        this.classList.remove('btn-primary');
+                        this.classList.add('btn-secondary');
+                    }
+                });
+            });
+        });
+    }
+    
+    // Initialize buttons on page load
+    initializeAddToStudyPlanButtons();
+});
+</script>
+{% endblock %} 

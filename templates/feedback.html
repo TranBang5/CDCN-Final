@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Phản hồi - EduRec{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-comment-dots"></i> Gửi phản hồi</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Cảm ơn bạn đã sử dụng hệ thống đề xuất EduRec. Chúng tôi rất mong nhận được phản hồi của bạn để cải thiện dịch vụ.</p>
+                    
+                    {% if success %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Cảm ơn bạn đã gửi phản hồi! Ý kiến của bạn rất quan trọng đối với chúng tôi.
+                    </div>
+                    {% endif %}
+                    
+                    <form method="POST" action="{{ url_for('feedback') }}">
+                        <div class="mb-3">
+                            <label for="feedback_type" class="form-label">Loại phản hồi</label>
+                            <select class="form-select" id="feedback_type" name="feedback_type" required>
+                                <option value="">Chọn loại phản hồi...</option>
+                                <option value="general">Phản hồi chung</option>
+                                <option value="recommendation">Đề xuất học tập</option>
+                                <option value="interface">Giao diện người dùng</option>
+                                <option value="bug">Báo lỗi</option>
+                                <option value="feature">Đề xuất tính năng mới</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Đánh giá (1-5 sao)</label>
+                            <div class="rating">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="rating" id="rating5" value="5" required>
+                                    <label class="form-check-label" for="rating5">
+                                        <i class="far fa-star"></i>
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="rating" id="rating4" value="4">
+                                    <label class="form-check-label" for="rating4">
+                                        <i class="far fa-star"></i>
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="rating" id="rating3" value="3">
+                                    <label class="form-check-label" for="rating3">
+                                        <i class="far fa-star"></i>
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="rating" id="rating2" value="2">
+                                    <label class="form-check-label" for="rating2">
+                                        <i class="far fa-star"></i>
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="rating" id="rating1" value="1">
+                                    <label class="form-check-label" for="rating1">
+                                        <i class="far fa-star"></i>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Nội dung phản hồi</label>
+                            <textarea class="form-control" id="content" name="content" rows="5" required placeholder="Hãy chia sẻ ý kiến của bạn để chúng tôi có thể cải thiện hệ thống..."></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Gửi phản hồi
+                            </button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if feedbacks %}
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-history"></i> Lịch sử phản hồi của bạn</h4>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for feedback in feedbacks %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-1">
+                                    {% if feedback.feedback_type == 'general' %}
+                                        <span class="badge bg-secondary">Phản hồi chung</span>
+                                    {% elif feedback.feedback_type == 'recommendation' %}
+                                        <span class="badge bg-primary">Đề xuất học tập</span>
+                                    {% elif feedback.feedback_type == 'interface' %}
+                                        <span class="badge bg-info">Giao diện</span>
+                                    {% elif feedback.feedback_type == 'bug' %}
+                                        <span class="badge bg-danger">Lỗi</span>
+                                    {% elif feedback.feedback_type == 'feature' %}
+                                        <span class="badge bg-success">Tính năng mới</span>
+                                    {% endif %}
+                                </h5>
+                                <small class="text-muted">{{ feedback.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                            </div>
+                            <div class="mb-1">
+                                {% for i in range(5) %}
+                                    {% if i < feedback.rating %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-muted"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <p class="mb-1">{{ feedback.content }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    margin-top: -10px;
+    background-size: 76%;
+    transition: .3s;
+    text-align: center;
+}
+
+.rating label i {
+    font-size: 1.5rem;
+    color: #ddd;
+}
+
+.rating input:checked ~ label i,
+.rating input:checked ~ label ~ label i,
+.rating label:hover ~ label i,
+.rating label:hover i {
+    color: #ffb300;
+}
+
+.rating label:hover ~ label i,
+.rating label:hover i {
+    transform: scale(1.1);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle star rating visuals
+    const ratingLabels = document.querySelectorAll('.rating label');
+    ratingLabels.forEach(label => {
+        label.addEventListener('mouseover', function() {
+            const star = this.querySelector('i');
+            star.classList.remove('far');
+            star.classList.add('fas');
+            
+            let prevSibling = this.previousElementSibling;
+            while(prevSibling) {
+                const siblingIcon = prevSibling.querySelector('label i');
+                siblingIcon.classList.remove('far');
+                siblingIcon.classList.add('fas');
+                prevSibling = prevSibling.previousElementSibling;
+            }
+        });
+        
+        label.addEventListener('mouseout', function() {
+            if (!this.previousElementSibling.checked) {
+                const stars = document.querySelectorAll('.rating label i');
+                stars.forEach(star => {
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                });
+                
+                // Restore checked stars
+                const checkedInput = document.querySelector('.rating input:checked');
+                if (checkedInput) {
+                    let current = checkedInput.nextElementSibling;
+                    while (current) {
+                        const starIcon = current.querySelector('i');
+                        starIcon.classList.remove('far');
+                        starIcon.classList.add('fas');
+                        current = current.nextElementSibling;
+                    }
+                }
+            }
+        });
+    });
+    
+    // Handle radio click
+    const ratingInputs = document.querySelectorAll('.rating input');
+    ratingInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const stars = document.querySelectorAll('.rating label i');
+            stars.forEach(star => {
+                star.classList.remove('fas');
+                star.classList.add('far');
+            });
+            
+            let current = this.nextElementSibling;
+            while (current) {
+                const starIcon = current.querySelector('i');
+                starIcon.classList.remove('far');
+                starIcon.classList.add('fas');
+                current = current.nextElementSibling;
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 
